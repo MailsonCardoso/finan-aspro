@@ -1,49 +1,195 @@
+import { useQuery } from "@tanstack/react-query";
+import api from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
+import { Loader2, AlertCircle, TrendingUp, BarChart3, PieChart } from "lucide-react";
 
-const rows = [
-  { label: "Receita Bruta de Vendas", value: 520000, bold: false },
-  { label: "(-) Deduções sobre Vendas", value: -45000, bold: false },
-  { label: "= Receita Líquida", value: 475000, bold: true },
-  { label: "(-) Custo dos Produtos Vendidos (CPV)", value: -185000, bold: false },
-  { label: "= Lucro Bruto", value: 290000, bold: true },
-  { label: "(-) Despesas com Pessoal", value: -98000, bold: false },
-  { label: "(-) Despesas Administrativas", value: -32000, bold: false },
-  { label: "(-) Despesas Comerciais", value: -18500, bold: false },
-  { label: "(-) Despesas Tributárias", value: -24000, bold: false },
-  { label: "= EBITDA", value: 117500, bold: true },
-  { label: "(-) Depreciação e Amortização", value: -12000, bold: false },
-  { label: "(-) Resultado Financeiro", value: -8300, bold: false },
-  { label: "= Resultado Antes do IR/CSLL", value: 97200, bold: true },
-  { label: "(-) IR e CSLL", value: -29840, bold: false },
-  { label: "= Lucro Líquido do Exercício", value: 67360, bold: true },
-];
+interface DREData {
+  periodo: string;
+  receita_bruta: number;
+  custos_variaveis: number;
+  lucro_bruto: number;
+  despesas_operacionais: number;
+  lucro_liquido: number;
+  detalhes: {
+    por_categoria: Record<string, { type: string; total: number }>;
+  };
+}
 
 export function DRE() {
-  return (
-    <div className="space-y-6 animate-fade-in">
-      <h2 className="text-xl font-bold text-foreground">DRE — Demonstração do Resultado do Exercício</h2>
-      <p className="text-sm text-muted-foreground">Período: Janeiro/2025</p>
+  const { data, isLoading, error } = useQuery<DREData>({
+    queryKey: ["dre"],
+    queryFn: async () => {
+      const response = await api.get("/financial/dre");
+      return response.data;
+    },
+  });
 
-      <div className="bg-card rounded-lg border overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b bg-muted/50">
-              <th className="text-left p-3 font-medium text-muted-foreground">Conta</th>
-              <th className="text-right p-3 font-medium text-muted-foreground">Valor (R$)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, i) => (
-              <tr key={i} className={`border-b last:border-b-0 ${row.bold ? "bg-muted/40" : "hover:bg-muted/20"} transition-colors`}>
-                <td className={`p-3 ${row.bold ? "font-bold text-foreground" : "text-foreground pl-6"}`}>{row.label}</td>
-                <td className={`p-3 text-right ${row.bold ? "font-bold" : "font-medium"} ${row.value >= 0 ? "text-foreground" : "text-danger"}`}>
-                  {formatCurrency(Math.abs(row.value))}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center p-20 gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-sm font-medium text-muted-foreground animate-pulse">Calculando demonstrativo...</p>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12 text-center bg-danger/5 rounded-2xl border border-danger/20">
+        <AlertCircle className="h-10 w-10 mb-4 text-danger" />
+        <h3 className="text-lg font-bold text-danger mb-2">Ops! Falha na Geração</h3>
+        <p className="text-sm text-muted-foreground max-w-xs">
+          Não conseguimos processar o DRE. Verifique se o backend na VPS está configurado corretamente.
+        </p>
+      </div>
+    );
+  }
+
+  const rows = [
+    { label: "(+) Receita Bruta Operacional", value: data.receita_bruta, bold: false, type: 'income' },
+    { label: "(-) Deduções e Impostos Variáveis", value: -data.custos_variaveis, bold: false, type: 'expense' },
+    { label: "(=) LUCRO BRUTO", value: data.lucro_bruto, bold: true, type: 'result' },
+    { label: "(-) Despesas Operacionais / Fixas", value: -data.despesas_operacionais, bold: false, type: 'expense' },
+    { label: "(=) LUCRO LÍQUIDO DO PERÍODO", value: data.lucro_liquido, bold: true, type: 'result' },
+  ];
+
+  const margemLiquida = data.receita_bruta > 0
+    ? (data.lucro_liquido / data.receita_bruta) * 100
+    : 0;
+
+  return (
+    <div className="space-y-8 animate-fade-in pb-10">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <BarChart3 className="h-5 w-5 text-primary" />
+            <span className="text-xs font-bold text-primary uppercase tracking-[0.2em]">Relatório Contábil</span>
+          </div>
+          <h2 className="text-3xl font-black text-foreground tracking-tight">DRE Cooporativo</h2>
+          <p className="text-sm text-muted-foreground">Demostrativo do Resultado do Exercício consolidado.</p>
+        </div>
+
+        <div className="flex items-center gap-4 bg-card border px-5 py-3 rounded-2xl shadow-sm">
+          <div className="text-right border-r pr-4 border-dashed">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase">Mês de Referência</p>
+            <p className="text-xl font-black text-foreground">{data.periodo}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase">Status Contábil</p>
+            <div className="flex items-center gap-1.5 justify-end mt-1">
+              <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
+              <span className="text-xs font-bold text-success uppercase">Consolidado</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Main DRE Table */}
+        <div className="lg:col-span-8 space-y-6">
+          <div className="bg-card rounded-3xl border shadow-xl overflow-hidden">
+            <div className="p-6 bg-muted/30 border-b border-dashed flex items-center justify-between">
+              <h3 className="font-bold flex items-center gap-2">
+                <FileText className="h-4 w-4 text-primary" />
+                Estrutura de Resultados
+              </h3>
+              <span className="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded-full font-bold uppercase">Valores em Reais (BRL)</span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-muted/10">
+                    <th className="text-left py-4 px-8 font-bold text-[10px] uppercase text-muted-foreground tracking-widest">Conta Descritiva</th>
+                    <th className="text-right py-4 px-8 font-bold text-[10px] uppercase text-muted-foreground tracking-widest">Saldo (R$)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-dashed">
+                  {rows.map((row, i) => (
+                    <tr
+                      key={i}
+                      className={`transition-all ${row.bold ? "bg-primary/5 hover:bg-primary/10" : "hover:bg-muted/10 group"
+                        }`}
+                    >
+                      <td className={`py-6 px-8 ${row.bold ? "font-black text-foreground text-lg" : "text-muted-foreground font-medium pl-14 relative"}`}>
+                        {!row.bold && <div className="absolute left-10 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-border group-hover:bg-primary transition-colors" />}
+                        {row.label}
+                      </td>
+                      <td className={`py-6 px-8 text-right font-black ${row.value >= 0 ? "text-success" : "text-danger"
+                        } ${row.bold ? "text-xl" : "text-lg"}`}>
+                        {formatCurrency(row.value)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 flex items-start gap-4">
+            <TrendingUp className="h-6 w-6 text-primary mt-1" />
+            <div>
+              <h4 className="font-bold text-primary mb-1">Análise de Performance</h4>
+              <p className="text-sm text-foreground/70 leading-relaxed">
+                Neste período, a empresa obteu uma margem líquida de <span className="font-bold text-primary">{margemLiquida.toFixed(2)}%</span>.
+                {margemLiquida > 15
+                  ? " O resultado indica uma excelente eficiência operacional e controle de custos fixos."
+                  : " Recomenda-se a revisão dos custos variáveis para otimização da margem de lucro bruto."}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Sidebar Widgets */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* Liquidity Widget */}
+          <div className="bg-sidebar p-8 rounded-3xl text-sidebar-foreground border-t-4 border-primary shadow-2xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-125 transition-transform duration-500">
+              <PieChart size={120} />
+            </div>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-4 opacity-80">Rendimento Líquido</p>
+            <div className="text-5xl font-black mb-2 tracking-tighter">
+              {margemLiquida.toFixed(1)}<span className="text-2xl text-primary">%</span>
+            </div>
+            <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden mt-6">
+              <div
+                className="h-full bg-primary transition-all duration-1000 ease-out"
+                style={{ width: `${Math.min(100, Math.max(0, margemLiquida))}%` }}
+              />
+            </div>
+            <p className="text-[10px] mt-4 text-white/50 leading-relaxed">Considerando a Receita Bruta menos todos os custos e despesas apurados.</p>
+          </div>
+
+          {/* Categories Chart Alternative */}
+          <div className="bg-card border rounded-3xl p-6 shadow-sm">
+            <h3 className="font-bold text-sm mb-4 flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-primary" />
+              Gastos por Categoria
+            </h3>
+            <div className="space-y-3">
+              {Object.entries(data.detalhes.por_categoria)
+                .filter(([_, info]) => info.type === 'expense')
+                .sort((a, b) => b[1].total - a[1].total)
+                .slice(0, 5)
+                .map(([category, info]) => (
+                  <div key={category} className="group">
+                    <div className="flex justify-between text-xs mb-1.5">
+                      <span className="font-semibold text-muted-foreground group-hover:text-primary transition-colors">{category || 'Diversas'}</span>
+                      <span className="font-black text-foreground">{formatCurrency(info.total)}</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-muted rounded-full">
+                      <div
+                        className="h-full bg-danger/60 rounded-full"
+                        style={{ width: `${Math.min(100, (info.total / data.despesas_operacionais) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+

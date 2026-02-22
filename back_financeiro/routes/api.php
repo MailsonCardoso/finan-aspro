@@ -19,6 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Financeiro
     Route::get('/dashboard/stats', [FinancialController::class, 'dashboardStats']);
+    Route::get('/financial/dre', [FinancialController::class, 'dre']);
     Route::get('/financial/entries', [FinancialController::class, 'index']);
     Route::post('/financial/entries', [FinancialController::class, 'store']);
     Route::patch('/financial/entries/{id}/status', [FinancialController::class, 'updateStatus']);

@@ -73,4 +73,46 @@ class FinancialController extends Controller
             'lucro_liquido' => (float) $lucroLiquido,
         ]);
     }
+
+    public function dre(Request $request)
+    {
+        $year = $request->query('year', date('Y'));
+        $month = $request->query('month', date('m'));
+
+        $query = FinancialEntry::whereYear('due_date', $year)
+            ->whereMonth('due_date', $month)
+            ->where('status', '!=', 'cancelled');
+
+        $entries = $query->get();
+
+        $receitaBruta = $entries->where('type', 'income')->sum('value');
+
+        $custosVariaveis = $entries->where('type', 'expense')
+            ->whereIn('category', ['Fornecedores', 'Impostos'])
+            ->sum('value');
+
+        $despesasOperacionais = $entries->where('type', 'expense')
+            ->whereNotIn('category', ['Fornecedores', 'Impostos'])
+            ->sum('value');
+
+        $lucroBruto = $receitaBruta - $custosVariaveis;
+        $lucroLiquido = $lucroBruto - $despesasOperacionais;
+
+        return response()->json([
+            'periodo' => "$month/$year",
+            'receita_bruta' => (float) $receitaBruta,
+            'custos_variaveis' => (float) $custosVariaveis,
+            'lucro_bruto' => (float) $lucroBruto,
+            'despesas_operacionais' => (float) $despesasOperacionais,
+            'lucro_liquido' => (float) $lucroLiquido,
+            'detalhes' => [
+                'por_categoria' => $entries->groupBy('category')->map(function ($group) {
+                    return [
+                        'type' => $group->first()->type,
+                        'total' => $group->sum('value')
+                    ];
+                })
+            ]
+        ]);
+    }
 }
