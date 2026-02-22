@@ -7,16 +7,18 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('employees', function (Blueprint $col) {
-            $col->id();
-            $col->string('name');
-            $col->string('role');
-            $col->string('department');
-            $col->date('admission_date');
-            $col->decimal('salary', 15, 2)->nullable();
-            $col->enum('status', ['active', 'inactive'])->default('active');
-            $col->timestamps();
-        });
+        if (!Schema::hasTable('employees')) {
+            Schema::create('employees', function (Blueprint $col) {
+                $col->id();
+                $col->string('name');
+                $col->string('role');
+                $col->string('department');
+                $col->date('admission_date');
+                $col->decimal('salary', 15, 2)->nullable();
+                $col->enum('status', ['active', 'inactive'])->default('active');
+                $col->timestamps();
+            });
+        }
     }
 
     public function down(): void
