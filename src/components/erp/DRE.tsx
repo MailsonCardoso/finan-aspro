@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
-import { Loader2, AlertCircle, TrendingUp, BarChart3, PieChart } from "lucide-react";
+import { Loader2, AlertCircle, TrendingUp, BarChart3, PieChart, FileText } from "lucide-react";
 
 interface DREData {
   periodo: string;
