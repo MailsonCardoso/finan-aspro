@@ -1,13 +1,8 @@
-import { TrendingUp, TrendingDown, DollarSign, ArrowDownLeft, ArrowUpRight, Wallet } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import { TrendingUp, TrendingDown, DollarSign, ArrowDownLeft, ArrowUpRight, Wallet, Loader2 } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { formatCurrency } from "@/lib/format";
-
-const kpis = [
-  { label: "Saldo em Caixa", value: 284350.0, trend: 12.5, up: true, icon: Wallet },
-  { label: "A Receber", value: 156780.0, trend: 8.3, up: true, icon: ArrowDownLeft },
-  { label: "A Pagar", value: 98420.0, trend: 3.1, up: false, icon: ArrowUpRight },
-  { label: "Lucro Líquido", value: 67230.0, trend: 15.2, up: true, icon: DollarSign },
-];
+import { useQuery } from "@tanstack/react-query";
+import api from "@/lib/api";
 
 const cashFlowData = [
   { month: "Jul", Receitas: 85000, Despesas: 62000 },
@@ -18,17 +13,32 @@ const cashFlowData = [
   { month: "Dez", Receitas: 115000, Despesas: 85000 },
 ];
 
-const costData = [
-  { name: "Folha de Pagamento", value: 42 },
-  { name: "Fornecedores", value: 25 },
-  { name: "Impostos", value: 18 },
-  { name: "Operacional", value: 10 },
-  { name: "Outros", value: 5 },
-];
-
 const PIE_COLORS = ["#9932CC", "#7A28A3", "#B366D9", "#D4A5E8", "#E8CCF2"];
 
 export function Dashboard() {
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ["dashboard-stats"],
+    queryFn: async () => {
+      const response = await api.get("/dashboard/stats");
+      return response.data;
+    },
+  });
+
+  const kpis = [
+    { label: "Saldo em Caixa", value: stats?.saldo_caixa || 0, trend: 12.5, up: true, icon: Wallet },
+    { label: "A Receber", value: stats?.a_receber || 0, trend: 8.3, up: true, icon: ArrowDownLeft },
+    { label: "A Pagar", value: stats?.a_pagar || 0, trend: 3.1, up: false, icon: ArrowUpRight },
+    { label: "Lucro Líquido", value: stats?.lucro_liquido || 0, trend: 15.2, up: true, icon: DollarSign },
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[400px] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -75,8 +85,23 @@ export function Dashboard() {
           <h3 className="text-base font-semibold text-foreground mb-4">Estrutura de Custos</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
-              <Pie data={costData} cx="50%" cy="50%" innerRadius={55} outerRadius={90} paddingAngle={3} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
-                {costData.map((_, i) => (
+              <Pie
+                data={[
+                  { name: "Folha", value: 40 },
+                  { name: "Fornecedores", value: 30 },
+                  { name: "Impostos", value: 20 },
+                  { name: "Outros", value: 10 }
+                ]}
+                cx="50%"
+                cy="50%"
+                innerRadius={55}
+                outerRadius={90}
+                paddingAngle={3}
+                dataKey="value"
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                labelLine={false}
+              >
+                {[0, 1, 2, 3].map((_, i) => (
                   <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                 ))}
               </Pie>
@@ -88,3 +113,4 @@ export function Dashboard() {
     </div>
   );
 }
+

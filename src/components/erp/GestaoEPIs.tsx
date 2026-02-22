@@ -1,35 +1,56 @@
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 import { formatDate } from "@/lib/format";
 import { Modal } from "./Modal";
-
-const epiData = [
-  { id: 1, funcionario: "Ana Clara Souza", epi: "Óculos de Proteção", entrega: "2024-08-10", validade: "2025-08-10", estado: "Válido" },
-  { id: 2, funcionario: "Carlos Eduardo Lima", epi: "Capacete de Segurança", entrega: "2024-06-15", validade: "2025-06-15", estado: "Válido" },
-  { id: 3, funcionario: "Pedro Henrique Alves", epi: "Luvas Isolantes", entrega: "2024-03-20", validade: "2025-01-20", estado: "Vencido" },
-  { id: 4, funcionario: "Rafael Martins", epi: "Protetor Auricular", entrega: "2024-11-01", validade: "2025-02-01", estado: "Vencendo" },
-  { id: 5, funcionario: "Juliana Costa", epi: "Sapato de Segurança", entrega: "2024-09-05", validade: "2025-09-05", estado: "Válido" },
-  { id: 6, funcionario: "Mariana Ferreira", epi: "Máscara PFF2", entrega: "2024-12-01", validade: "2025-03-01", estado: "Vencendo" },
-];
-
-const ativos = epiData.filter(e => e.estado === "Válido").length;
-const vencendo = epiData.filter(e => e.estado === "Vencendo").length;
-const conformidade = Math.round((ativos / epiData.length) * 100);
-
-const kpis = [
-  { label: "EPIs Ativos", value: ativos.toString() },
-  { label: "Vencendo em Breve", value: vencendo.toString() },
-  { label: "Conformidade", value: `${conformidade}%` },
-];
-
-const employeeOptions = ["Ana Clara Souza", "Carlos Eduardo Lima", "Mariana Ferreira", "Pedro Henrique Alves", "Juliana Costa", "Rafael Martins"];
-const epiTypes = ["Capacete de Segurança", "Óculos de Proteção", "Luvas Isolantes", "Protetor Auricular", "Sapato de Segurança", "Máscara PFF2", "Cinto de Segurança"];
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import api from "@/lib/api";
+import { toast } from "sonner";
 
 export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { modalOpen: boolean; onCloseModal: () => void; preselectedEmployee?: string }) {
   const [internalModal, setInternalModal] = useState(false);
   const isOpen = modalOpen || internalModal;
+  const queryClient = useQueryClient();
+
   const handleClose = () => { onCloseModal(); setInternalModal(false); };
+
+  const { data: assignments, isLoading: loadingAssignments } = useQuery({
+    queryKey: ["epi-assignments"],
+    queryFn: async () => {
+      const response = await api.get("/epis/assignments");
+      return response.data;
+    },
+  });
+
+  const { data: employees } = useQuery({
+    queryKey: ["employees"],
+    queryFn: async () => {
+      const response = await api.get("/employees");
+      return response.data;
+    },
+  });
+
+  const { data: epis } = useQuery({
+    queryKey: ["epis"],
+    queryFn: async () => {
+      const response = await api.get("/epis");
+      return response.data;
+    },
+  });
+
+  const kpis = [
+    { label: "EPIs Ativos", value: assignments?.filter((a: any) => a.status === 'delivered').length.toString() || "0" },
+    { label: "Vencendo / Vencidos", value: assignments?.filter((a: any) => a.status === 'expired').length.toString() || "0" },
+    { label: "Total Registros", value: assignments?.length.toString() || "0" },
+  ];
+
+  if (loadingAssignments) {
+    return (
+      <div className="flex h-[400px] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -58,22 +79,16 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
               <th className="text-left p-3 font-medium text-muted-foreground">Data da Entrega</th>
               <th className="text-left p-3 font-medium text-muted-foreground">Próxima Troca</th>
               <th className="text-left p-3 font-medium text-muted-foreground">Estado</th>
-              <th className="text-right p-3 font-medium text-muted-foreground">Ações</th>
             </tr>
           </thead>
           <tbody>
-            {epiData.map(row => (
+            {assignments?.map((row: any) => (
               <tr key={row.id} className="border-b last:border-b-0 hover:bg-muted/30 transition-colors">
-                <td className="p-3 font-medium text-foreground">{row.funcionario}</td>
-                <td className="p-3 text-muted-foreground">{row.epi}</td>
-                <td className="p-3 text-muted-foreground">{formatDate(row.entrega)}</td>
-                <td className="p-3 text-muted-foreground">{formatDate(row.validade)}</td>
-                <td className="p-3"><StatusBadge status={row.estado} /></td>
-                <td className="p-3 text-right">
-                  <button className="text-xs px-3 py-1.5 bg-secondary text-secondary-foreground rounded-md hover:bg-primary hover:text-primary-foreground transition-colors font-medium">
-                    Registrar Baixa
-                  </button>
-                </td>
+                <td className="p-3 font-medium text-foreground">{row.employee?.name}</td>
+                <td className="p-3 text-muted-foreground">{row.epi?.name}</td>
+                <td className="p-3 text-muted-foreground">{formatDate(row.assignment_date)}</td>
+                <td className="p-3 text-muted-foreground">{formatDate(row.expiry_date)}</td>
+                <td className="p-3"><StatusBadge status={row.status === 'delivered' ? 'Válido' : 'Vencido'} /></td>
               </tr>
             ))}
           </tbody>
@@ -81,36 +96,53 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
       </div>
 
       <Modal open={isOpen} onClose={handleClose} title="Vincular EPI">
-        <div className="space-y-4">
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.currentTarget);
+          const payload = {
+            employee_id: formData.get('employee_id'),
+            epi_id: formData.get('epi_id'),
+            assignment_date: formData.get('assignment_date'),
+            expiry_date: formData.get('expiry_date'),
+            status: 'delivered'
+          };
+
+          api.post('/epis/assignments', payload).then(() => {
+            queryClient.invalidateQueries({ queryKey: ["epi-assignments"] });
+            handleClose();
+            toast.success("EPI vinculado com sucesso!");
+          });
+        }} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Funcionário</label>
-            <select defaultValue={preselectedEmployee || ""} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+            <select name="employee_id" required defaultValue={preselectedEmployee || ""} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
               <option value="" disabled>Selecione o funcionário</option>
-              {employeeOptions.map(e => <option key={e} value={e}>{e}</option>)}
+              {employees?.map((e: any) => <option key={e.id} value={e.id}>{e.name}</option>)}
             </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Tipo de EPI</label>
-            <select className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+            <select name="epi_id" required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
               <option value="" disabled selected>Selecione o EPI</option>
-              {epiTypes.map(e => <option key={e} value={e}>{e}</option>)}
+              {epis?.map((e: any) => <option key={e.id} value={e.id}>{e.name}</option>)}
             </select>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-foreground mb-1">Data da Entrega</label>
-              <input type="date" className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              <input name="assignment_date" type="date" required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
             </div>
             <div>
               <label className="block text-sm font-medium text-foreground mb-1">Próxima Troca (Validade)</label>
-              <input type="date" className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              <input name="expiry_date" type="date" className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
             </div>
           </div>
-          <button className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors font-medium text-sm">
+          <button type="submit" className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors font-medium text-sm">
             Vincular EPI
           </button>
-        </div>
+        </form>
       </Modal>
     </div>
   );
 }
+

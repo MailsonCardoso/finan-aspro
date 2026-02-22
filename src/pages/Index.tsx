@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   LayoutDashboard, FileText, CreditCard, TrendingUp, BarChart3,
-  Users, Shield, Bell, Search, Menu, X, LogOut, ChevronRight,
+  Users, Shield, Bell, Search, Menu, X, LogOut, ChevronRight, Loader2,
 } from "lucide-react";
 import { Dashboard } from "@/components/erp/Dashboard";
 import { ContasReceber } from "@/components/erp/ContasReceber";
@@ -10,6 +10,8 @@ import { FluxoCaixa } from "@/components/erp/FluxoCaixa";
 import { DRE } from "@/components/erp/DRE";
 import { Funcionarios } from "@/components/erp/Funcionarios";
 import { GestaoEPIs } from "@/components/erp/GestaoEPIs";
+import api from "@/lib/api";
+import { toast } from "sonner";
 
 type Tab = "resumo" | "receber" | "pagar" | "fluxo" | "dre" | "funcionarios" | "epis";
 
@@ -48,6 +50,38 @@ const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [epiModalOpen, setEpiModalOpen] = useState(false);
   const [epiEmployee, setEpiEmployee] = useState<string | undefined>();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [email, setEmail] = useState("administrador@financeiro.com.br");
+  const [password, setPassword] = useState("@Secur1t1@");
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token);
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const response = await api.post("/login", { email, password });
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      setIsAuthenticated(true);
+      toast.success("Bem-vindo ao FinançasPro!");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Erro ao realizar login");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setIsAuthenticated(false);
+    toast.info("Sessão encerrada");
+  };
 
   const handleOpenEPI = (employeeName?: string) => {
     setEpiEmployee(employeeName);
@@ -60,6 +94,62 @@ const Index = () => {
     setMobileMenuOpen(false);
   };
 
+  if (isAuthenticated === null) return null;
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-sidebar flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-card rounded-2xl shadow-2xl overflow-hidden border border-sidebar-muted animate-fade-in">
+          <div className="p-8 border-b border-sidebar-muted bg-sidebar/50">
+            <div className="flex items-center gap-4 mb-2">
+              <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center">
+                <TrendingUp className="h-7 w-7 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-primary-foreground">FinançasPro</h1>
+                <p className="text-xs text-sidebar-foreground/60 uppercase tracking-tighter">Acesse sua conta</p>
+              </div>
+            </div>
+          </div>
+          <form onSubmit={handleLogin} className="p-8 space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-1.5">E-mail</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full px-4 py-2.5 bg-background border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm"
+                placeholder="exemplo@empresa.com"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-1.5">Senha</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full px-4 py-2.5 bg-background border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm"
+                placeholder="••••••••"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold hover:shadow-lg hover:shadow-primary/20 transition-all flex items-center justify-center gap-2"
+            >
+              {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Entrar no Sistema"}
+            </button>
+            <p className="text-center text-[11px] text-muted-foreground mt-4">
+              Protegido por criptografia SG-AES-256
+            </p>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   const renderView = () => {
     switch (activeTab) {
       case "resumo": return <Dashboard />;
@@ -71,6 +161,8 @@ const Index = () => {
       case "epis": return <GestaoEPIs modalOpen={epiModalOpen} onCloseModal={() => setEpiModalOpen(false)} preselectedEmployee={epiEmployee} />;
     }
   };
+
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -99,11 +191,10 @@ const Index = () => {
                   <li key={item.id}>
                     <button
                       onClick={() => handleNav(item.id)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                        activeTab === item.id
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${activeTab === item.id
                           ? "bg-primary text-primary-foreground font-medium"
                           : "text-sidebar-foreground/80 hover:bg-sidebar-muted hover:text-primary-foreground"
-                      }`}
+                        }`}
                     >
                       <item.icon className="h-4 w-4 flex-shrink-0" />
                       <span>{item.label}</span>
@@ -119,12 +210,14 @@ const Index = () => {
         {/* User Card */}
         <div className="p-4 border-t border-sidebar-muted">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-primary-foreground">RP</div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-primary-foreground truncate">Ricardo Pereira</p>
-              <p className="text-[11px] text-sidebar-foreground/60">Administrador</p>
+            <div className="h-9 w-9 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-primary-foreground">
+              {user.name?.[0]}{user.name?.split(' ')?.[1]?.[0] || 'A'}
             </div>
-            <button className="p-1.5 rounded-md hover:bg-sidebar-muted transition-colors">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-primary-foreground truncate">{user.name || 'Administrador'}</p>
+              <p className="text-[11px] text-sidebar-foreground/60">Sessão Ativa</p>
+            </div>
+            <button onClick={handleLogout} className="p-1.5 rounded-md hover:bg-sidebar-muted transition-colors">
               <LogOut className="h-4 w-4 text-sidebar-foreground/60" />
             </button>
           </div>
@@ -155,11 +248,10 @@ const Index = () => {
                   <button
                     key={item.id}
                     onClick={() => handleNav(item.id)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                      activeTab === item.id
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${activeTab === item.id
                         ? "bg-primary text-primary-foreground font-medium"
                         : "text-sidebar-foreground/80 hover:bg-sidebar-muted"
-                    }`}
+                      }`}
                   >
                     <item.icon className="h-4 w-4" />
                     <span>{item.label}</span>
@@ -192,8 +284,10 @@ const Index = () => {
               <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-danger" />
             </button>
             <div className="hidden sm:flex items-center gap-2 pl-3 border-l">
-              <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-xs font-bold text-primary">RP</div>
-              <span className="text-sm font-medium text-foreground">Ricardo</span>
+              <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-xs font-bold text-primary">
+                {user.name?.[0] || "A"}
+              </div>
+              <span className="text-sm font-medium text-foreground">{user.name?.split(' ')?.[0] || 'User'}</span>
             </div>
           </div>
         </header>
@@ -208,3 +302,4 @@ const Index = () => {
 };
 
 export default Index;
+
