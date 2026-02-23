@@ -11,11 +11,22 @@ class FinancialController extends Controller
 {
     public function index(Request $request)
     {
-        $type = $request->query('type'); // 'income' or 'expense'
+        $type = $request->query('type');
+        $month = $request->query('month');
+        $year = $request->query('year');
+
         $query = FinancialEntry::query();
 
         if ($type) {
             $query->where('type', $type);
+        }
+
+        if ($month) {
+            $query->whereMonth('due_date', $month);
+        }
+
+        if ($year) {
+            $query->whereYear('due_date', $year);
         }
 
         return $query->orderBy('due_date', 'desc')->get();
@@ -56,12 +67,13 @@ class FinancialController extends Controller
         return $entry;
     }
 
-    public function dashboardStats()
+    public function dashboardStats(Request $request)
     {
-        $currentMonth = date('m');
-        $currentYear = date('Y');
-        $lastMonth = date('m', strtotime('-1 month'));
-        $lastYear = date('Y', strtotime('-1 month'));
+        $selectedYear = $request->query('year', date('Y'));
+        $selectedMonth = $request->query('month', date('m'));
+
+        $lastMonth = date('m', strtotime("$selectedYear-$selectedMonth-01 -1 month"));
+        $lastYear = date('Y', strtotime("$selectedYear-$selectedMonth-01 -1 month"));
 
         $getStats = function ($m, $y) {
             $saldo = FinancialEntry::where('status', 'paid')
@@ -91,7 +103,7 @@ class FinancialController extends Controller
             return compact('saldo', 'aReceber', 'aPagar', 'lucroLiquido');
         };
 
-        $current = $getStats($currentMonth, $currentYear);
+        $current = $getStats($selectedMonth, $selectedYear);
         $previous = $getStats($lastMonth, $lastYear);
 
         $calculateTrend = function ($cur, $prev) {
@@ -100,12 +112,12 @@ class FinancialController extends Controller
             return round((($cur - $prev) / abs($prev)) * 100, 1);
         };
 
-        // Chart: Cash Flow Data (last 6 months)
-        $cashFlowData = collect(range(5, 0))->map(function ($i) {
-            $month = date('m', strtotime("-$i month"));
-            $year = date('Y', strtotime("-$i month"));
+        // Chart: Cash Flow Data (6 months ending at selected month)
+        $cashFlowData = collect(range(5, 0))->map(function ($i) use ($selectedYear, $selectedMonth) {
+            $date = strtotime("$selectedYear-$selectedMonth-01 -$i month");
+            $month = date('m', $date);
+            $year = date('Y', $date);
 
-            // Map month number to pt-BR abbr
             $months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
             $monthName = $months[intval($month) - 1];
 
@@ -128,10 +140,10 @@ class FinancialController extends Controller
             ];
         })->values();
 
-        // Chart: Cost Structure (Pie Chart) - Current Month
+        // Chart: Cost Structure (Pie Chart) - Selected Month
         $costStructureRaw = FinancialEntry::where('type', 'expense')
-            ->whereYear('due_date', $currentYear)
-            ->whereMonth('due_date', $currentMonth)
+            ->whereYear('due_date', $selectedYear)
+            ->whereMonth('due_date', $selectedMonth)
             ->selectRaw('category, SUM(value) as total')
             ->groupBy('category')
             ->get();

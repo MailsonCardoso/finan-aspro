@@ -3,6 +3,7 @@ import { Search, Calendar, Plus, Loader2 } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Modal } from "./Modal";
+import { MonthYearPicker } from "./MonthYearPicker";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { toast } from "sonner";
@@ -12,6 +13,8 @@ export function ContasReceber() {
   const [filter, setFilter] = useState("Todos");
   const [modalOpen, setModalOpen] = useState(false);
   const [displayValue, setDisplayValue] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState((new Date().getMonth() + 1).toString().padStart(2, '0'));
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
   const queryClient = useQueryClient();
 
   const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,9 +28,9 @@ export function ContasReceber() {
   };
 
   const { data: entries, isLoading } = useQuery({
-    queryKey: ["financial-entries", "income"],
+    queryKey: ["financial-entries", "income", selectedMonth, selectedYear],
     queryFn: async () => {
-      const response = await api.get("/financial/entries?type=income");
+      const response = await api.get(`/financial/entries?type=income&month=${selectedMonth}&year=${selectedYear}`);
       return response.data;
     },
   });
@@ -91,11 +94,24 @@ export function ContasReceber() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-foreground">Contas a Receber</h2>
-        <button onClick={() => setModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors text-sm font-medium">
-          <Plus className="h-4 w-4" /> Nova Conta
-        </button>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-foreground tracking-tight">Contas a Receber</h2>
+          <p className="text-sm text-muted-foreground">Gerencie seus recebimentos e faturamento.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <MonthYearPicker
+            month={selectedMonth}
+            year={selectedYear}
+            onChange={(m, y) => {
+              setSelectedMonth(m);
+              setSelectedYear(y);
+            }}
+          />
+          <button onClick={() => setModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl hover:shadow-[0_0_20px_rgba(var(--primary),0.3)] transition-all text-sm font-semibold">
+            <Plus className="h-4 w-4" /> Novo Recebimento
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
 import { Loader2, AlertCircle, TrendingUp, BarChart3, PieChart, FileText } from "lucide-react";
+import { MonthYearPicker } from "./MonthYearPicker";
 
 interface DREData {
   periodo: string;
@@ -16,10 +18,13 @@ interface DREData {
 }
 
 export function DRE() {
+  const [selectedMonth, setSelectedMonth] = useState((new Date().getMonth() + 1).toString().padStart(2, '0'));
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+
   const { data, isLoading, error } = useQuery<DREData>({
-    queryKey: ["dre"],
+    queryKey: ["dre", selectedMonth, selectedYear],
     queryFn: async () => {
-      const response = await api.get("/financial/dre");
+      const response = await api.get(`/financial/dre?month=${selectedMonth}&year=${selectedYear}`);
       return response.data;
     },
   });
@@ -60,13 +65,23 @@ export function DRE() {
   return (
     <div className="space-y-8 animate-fade-in pb-10">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <BarChart3 className="h-5 w-5 text-primary" />
-            <span className="text-xs font-bold text-primary uppercase tracking-[0.2em]">Relatório Contábil</span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <BarChart3 className="h-5 w-5 text-primary" />
+              <span className="text-xs font-bold text-primary uppercase tracking-[0.2em]">Relatório Contábil</span>
+            </div>
+            <h2 className="text-3xl font-black text-foreground tracking-tight">DRE Corporativo</h2>
+            <p className="text-sm text-muted-foreground">Demonstrativo do Resultado do Exercício consolidado.</p>
           </div>
-          <h2 className="text-3xl font-black text-foreground tracking-tight">DRE Cooporativo</h2>
-          <p className="text-sm text-muted-foreground">Demostrativo do Resultado do Exercício consolidado.</p>
+          <MonthYearPicker
+            month={selectedMonth}
+            year={selectedYear}
+            onChange={(m, y) => {
+              setSelectedMonth(m);
+              setSelectedYear(y);
+            }}
+          />
         </div>
 
         <div className="flex items-center gap-4 bg-card border px-5 py-3 rounded-2xl shadow-sm">

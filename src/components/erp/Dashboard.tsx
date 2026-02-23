@@ -3,14 +3,19 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { formatCurrency } from "@/lib/format";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/api";
+import { MonthYearPicker } from "./MonthYearPicker";
+import { useState } from "react";
 
 const PIE_COLORS = ["#9932CC", "#7A28A3", "#B366D9", "#D4A5E8", "#E8CCF2"];
 
 export function Dashboard() {
+  const [selectedMonth, setSelectedMonth] = useState((new Date().getMonth() + 1).toString().padStart(2, '0'));
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+
   const { data: stats, isLoading } = useQuery({
-    queryKey: ["dashboard-stats"],
+    queryKey: ["dashboard-stats", selectedMonth, selectedYear],
     queryFn: async () => {
-      const response = await api.get("/dashboard/stats");
+      const response = await api.get(`/dashboard/stats?month=${selectedMonth}&year=${selectedYear}`);
       return response.data;
     },
   });
@@ -56,6 +61,19 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
+        <div>
+          <h2 className="text-2xl font-black text-foreground tracking-tight underline decoration-primary/30 decoration-4 underline-offset-8">Resumo Mensal</h2>
+        </div>
+        <MonthYearPicker
+          month={selectedMonth}
+          year={selectedYear}
+          onChange={(m, y) => {
+            setSelectedMonth(m);
+            setSelectedYear(y);
+          }}
+        />
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {kpis.map((kpi) => (
           <div key={kpi.label} className="bg-card rounded-lg border p-5 hover:shadow-md transition-shadow">

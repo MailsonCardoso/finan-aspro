@@ -1,14 +1,19 @@
+import { useState } from "react";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { StatusBadge } from "./StatusBadge";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { Loader2 } from "lucide-react";
+import { MonthYearPicker } from "./MonthYearPicker";
 
 export function FluxoCaixa() {
+  const [selectedMonth, setSelectedMonth] = useState((new Date().getMonth() + 1).toString().padStart(2, '0'));
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+
   const { data: entries, isLoading } = useQuery({
-    queryKey: ["financial-entries", "all"],
+    queryKey: ["financial-entries", "all", selectedMonth, selectedYear],
     queryFn: async () => {
-      const response = await api.get("/financial/entries");
+      const response = await api.get(`/financial/entries?month=${selectedMonth}&year=${selectedYear}`);
       return response.data;
     },
   });
@@ -58,7 +63,20 @@ export function FluxoCaixa() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <h2 className="text-xl font-bold text-foreground">Fluxo de Caixa</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-foreground tracking-tight">Fluxo de Caixa</h2>
+          <p className="text-sm text-muted-foreground">Visão detalhada de movimentações financeiras.</p>
+        </div>
+        <MonthYearPicker
+          month={selectedMonth}
+          year={selectedYear}
+          onChange={(m, y) => {
+            setSelectedMonth(m);
+            setSelectedYear(y);
+          }}
+        />
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {kpis.map(k => (
