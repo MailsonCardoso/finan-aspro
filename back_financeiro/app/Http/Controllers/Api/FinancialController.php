@@ -45,6 +45,7 @@ class FinancialController extends Controller
             'due_date' => 'required|date',
             'issue_date' => 'nullable|date',
             'type' => 'required|in:income,expense',
+            'expense_type' => 'nullable|in:fixa,variavel,imposto',
             'category' => 'nullable|string',
             'status' => 'nullable|in:pending,paid,cancelled',
             'client_id' => 'nullable|exists:clients,id',
@@ -190,22 +191,31 @@ class FinancialController extends Controller
 
         $receitaBruta = $entries->where('type', 'income')->sum('value');
 
-        $custosVariaveis = $entries->where('type', 'expense')
-            ->whereIn('category', ['Fornecedores', 'Impostos'])
+        $impostos = $entries->where('type', 'expense')
+            ->where('expense_type', 'imposto')
             ->sum('value');
+
+        $receitaLiquida = $receitaBruta - $impostos;
+
+        $custosVariaveis = $entries->where('type', 'expense')
+            ->where('expense_type', 'variavel')
+            ->sum('value');
+
+        $margemContribuicao = $receitaLiquida - $custosVariaveis;
 
         $despesasOperacionais = $entries->where('type', 'expense')
-            ->whereNotIn('category', ['Fornecedores', 'Impostos'])
+            ->where('expense_type', 'fixa')
             ->sum('value');
 
-        $lucroBruto = $receitaBruta - $custosVariaveis;
-        $lucroLiquido = $lucroBruto - $despesasOperacionais;
+        $lucroLiquido = $margemContribuicao - $despesasOperacionais;
 
         return response()->json([
             'periodo' => "$month/$year",
             'receita_bruta' => (float) $receitaBruta,
+            'impostos' => (float) $impostos,
+            'receita_liquida' => (float) $receitaLiquida,
             'custos_variaveis' => (float) $custosVariaveis,
-            'lucro_bruto' => (float) $lucroBruto,
+            'margem_contribuicao' => (float) $margemContribuicao,
             'despesas_operacionais' => (float) $despesasOperacionais,
             'lucro_liquido' => (float) $lucroLiquido,
             'detalhes' => [

@@ -8,8 +8,10 @@ import { MonthYearPicker } from "./MonthYearPicker";
 interface DREData {
   periodo: string;
   receita_bruta: number;
+  impostos: number;
+  receita_liquida: number;
   custos_variaveis: number;
-  lucro_bruto: number;
+  margem_contribuicao: number;
   despesas_operacionais: number;
   lucro_liquido: number;
   detalhes: {
@@ -51,10 +53,12 @@ export function DRE() {
   }
 
   const rows = [
-    { label: "(+) Receita Bruta Operacional", value: data.receita_bruta, bold: false, type: 'income' },
-    { label: "(-) Deduções e Impostos Variáveis", value: -data.custos_variaveis, bold: false, type: 'expense' },
-    { label: "(=) LUCRO BRUTO", value: data.lucro_bruto, bold: true, type: 'result' },
-    { label: "(-) Despesas Operacionais / Fixas", value: -data.despesas_operacionais, bold: false, type: 'expense' },
+    { label: "(+) RECEITA BRUTA OPERACIONAL", value: data.receita_bruta, bold: true, type: 'income' },
+    { label: "(-) Impostos sobre Vendas", value: -data.impostos, bold: false, type: 'expense' },
+    { label: "(=) RECEITA LÍQUIDA", value: data.receita_liquida, bold: true, type: 'result' },
+    { label: "(-) Custos Variáveis (Insumos/Fornec.)", value: -data.custos_variaveis, bold: false, type: 'expense' },
+    { label: "(=) MARGEM DE CONTRIBUIÇÃO", value: data.margem_contribuicao, bold: true, type: 'result' },
+    { label: "(-) Despesas Fixas / Operacionais", value: -data.despesas_operacionais, bold: false, type: 'expense' },
     { label: "(=) LUCRO LÍQUIDO DO PERÍODO", value: data.lucro_liquido, bold: true, type: 'result' },
   ];
 

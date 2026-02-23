@@ -201,6 +201,7 @@ export function ContasPagar() {
             bank_account: formData.get('bank_account') || null,
             payment_method: formData.get('payment_method') || null,
             type: 'expense',
+            expense_type: formData.get('expense_type'),
             status: formData.get('already_paid') === 'on' ? 'paid' : 'pending'
           };
 
@@ -231,6 +232,15 @@ export function ContasPagar() {
               {expenses?.map((e: any) => (
                 <option key={e.id} value={e.id}>{e.name}</option>
               ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">Tipo de Despesa (DRE)</label>
+            <select name="expense_type" required className="w-full border rounded-lg px-3 py-2 bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+              <option value="fixa">Despesa Fixa (Aluguel, Folha, etc)</option>
+              <option value="variavel">Custo Variável (Fornecedores, Insumos)</option>
+              <option value="imposto">Imposto (DAS, GPS, etc)</option>
             </select>
           </div>
 
@@ -297,7 +307,7 @@ export function ContasPagar() {
           </div>
         </form>
       </SidePanel>
-    </div>
+    </div >
   );
 }
 

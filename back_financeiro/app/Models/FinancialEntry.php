@@ -17,6 +17,7 @@ class FinancialEntry extends Model
         'payment_date',
         'status',
         'type',
+        'expense_type',
         'category',
         'observations',
         'client_id',
