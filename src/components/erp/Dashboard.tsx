@@ -104,8 +104,8 @@ export function Dashboard() {
                 data={stats?.cost_structure || []}
                 cx="50%"
                 cy="50%"
-                innerRadius={55}
-                outerRadius={90}
+                innerRadius={45}
+                outerRadius={70}
                 paddingAngle={3}
                 dataKey="value"
                 label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}

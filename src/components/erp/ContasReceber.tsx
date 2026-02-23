@@ -32,14 +32,21 @@ export function ContasReceber() {
     },
   });
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   const filtered = entries?.filter((d: any) => {
     const matchSearch = d.description.toLowerCase().includes(search.toLowerCase());
-    const statusMap: Record<string, string> = {
-      'Pendente': 'pending',
-      'Recebido': 'paid',
-      'Atrasado': 'pending' // Simplificativo para o exemplo
-    };
-    const matchFilter = filter === "Todos" || (statusMap[filter] === d.status);
+
+    let computedStatus = d.status;
+    if (d.status === 'pending') {
+      const isLate = new Date(d.due_date + 'T00:00:00') < today;
+      computedStatus = isLate ? 'Atrasado' : 'Pendente';
+    } else if (d.status === 'paid') {
+      computedStatus = 'Recebido';
+    }
+
+    const matchFilter = filter === "Todos" || filter === computedStatus;
     return matchSearch && matchFilter;
   }) || [];
 
@@ -118,7 +125,7 @@ export function ContasReceber() {
                     <Calendar className="h-3.5 w-3.5" /> {formatDate(row.due_date)}
                   </span>
                 </td>
-                <td className="p-3"><StatusBadge status={row.status === 'paid' ? 'Recebido' : 'Pendente'} /></td>
+                <td className="p-3"><StatusBadge status={row.status === 'paid' ? 'Recebido' : (row.status === 'pending' && new Date(row.due_date + 'T00:00:00') < new Date(new Date().setHours(0, 0, 0, 0)) ? 'Atrasado' : 'Pendente')} /></td>
                 <td className="p-3 text-right font-medium text-foreground">{formatCurrency(Number(row.value))}</td>
                 <td className="p-3 text-right">
                   {row.status !== "paid" && (

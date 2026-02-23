@@ -65,7 +65,7 @@ export function FluxoCaixa() {
               <tr key={row.id} className="border-b last:border-b-0 hover:bg-muted/30 transition-colors">
                 <td className="p-3 text-muted-foreground">{formatDate(row.due_date)}</td>
                 <td className="p-3 font-medium text-foreground">{row.description}</td>
-                <td className="p-3"><StatusBadge status={row.status === 'paid' ? 'Pago' : 'Pendente'} /></td>
+                <td className="p-3"><StatusBadge status={row.status === 'paid' ? 'Pago' : (row.status === 'pending' && new Date(row.due_date + 'T00:00:00') < new Date(new Date().setHours(0, 0, 0, 0)) ? 'Atrasado' : 'Pendente')} /></td>
                 <td className={`p-3 text-right font-semibold ${row.type === 'income' ? "text-success" : "text-danger"}`}>
                   {row.type === 'income' ? "+" : "-"}{formatCurrency(Math.abs(Number(row.value)))}
                 </td>
