@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Administrador',
                 'password' => Hash::make('@Secur1t1@'),
+                'cpf' => '000.000.000-00',
+                'role' => 'admin',
             ]
         );
     }
