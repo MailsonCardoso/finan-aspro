@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Loader2, RotateCcw } from "lucide-react";
+import { Plus, Loader2, RotateCcw, Search } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 import { formatDate } from "@/lib/format";
 import { Modal } from "./Modal";
@@ -11,6 +11,7 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
   const [internalModal, setInternalModal] = useState(false);
   const [returnModalOpen, setReturnModalOpen] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
+  const [search, setSearch] = useState("");
 
   const isOpen = modalOpen || internalModal;
   const queryClient = useQueryClient();
@@ -58,6 +59,12 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
     setReturnModalOpen(true);
   };
 
+  const filtered = assignments?.filter((a: any) =>
+    a.employee?.name.toLowerCase().includes(search.toLowerCase()) ||
+    a.epi?.name.toLowerCase().includes(search.toLowerCase()) ||
+    (a.return_reason?.toLowerCase() || "").includes(search.toLowerCase())
+  ) || [];
+
   const kpis = [
     { label: "EPIs Ativos", value: assignments?.filter((a: any) => a.status === 'delivered').length.toString() || "0" },
     { label: "Vencendo / Vencidos", value: assignments?.filter((a: any) => a.status === 'expired').length.toString() || "0" },
@@ -90,6 +97,11 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
         ))}
       </div>
 
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <input type="text" placeholder="Buscar por funcionário, EPI ou motivo..." value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-lg bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+      </div>
+
       <div className="bg-card rounded-lg border overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -103,7 +115,7 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
             </tr>
           </thead>
           <tbody>
-            {assignments?.map((row: any) => (
+            {filtered.map((row: any) => (
               <tr key={row.id} className={`border-b last:border-b-0 hover:bg-muted/30 transition-colors ${row.status === 'returned' ? 'opacity-60 bg-muted/10' : ''}`}>
                 <td className="p-3 font-medium text-foreground">{row.employee?.name}</td>
                 <td className="p-3 text-muted-foreground">{row.epi?.name}</td>
@@ -115,8 +127,7 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
                 </td>
                 <td className="p-3">
                   <StatusBadge
-                    status={row.status === 'returned' ? 'Pago' : (row.status === 'delivered' ? 'Válido' : 'Vencido')}
-                    label={row.status === 'returned' ? 'Devolvido' : (row.status === 'delivered' ? 'Válido' : 'Vencido')}
+                    status={row.status === 'returned' ? 'Devolvido' : (row.status === 'delivered' ? 'Válido' : 'Vencido')}
                   />
                 </td>
                 <td className="p-3 text-right">
