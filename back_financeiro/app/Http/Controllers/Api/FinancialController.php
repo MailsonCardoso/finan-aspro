@@ -14,8 +14,13 @@ class FinancialController extends Controller
         $type = $request->query('type');
         $month = $request->query('month');
         $year = $request->query('year');
+        $status = $request->query('status');
 
         $query = FinancialEntry::query();
+
+        if ($status) {
+            $query->where('status', $status);
+        }
 
         if ($type) {
             $query->where('type', $type);

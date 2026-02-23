@@ -85,6 +85,10 @@ const Index = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [notifications, setNotifications] = useState<NotificationEntry[]>([]);
+  const [seenIds, setSeenIds] = useState<number[]>(() => {
+    const saved = localStorage.getItem("seen_notificacoes");
+    return saved ? JSON.parse(saved) : [];
+  });
   const [notifOpen, setNotifOpen] = useState(false);
 
   useEffect(() => {
@@ -131,6 +135,20 @@ const Index = () => {
       });
     }
   }, []);
+
+  const unseenNotifications = notifications.filter(n => !seenIds.includes(n.id));
+
+  const handleToggleNotif = (open: boolean) => {
+    setNotifOpen(open);
+    if (open && unseenNotifications.length > 0) {
+      // Mark current unseen as seen
+      const newSeenIds = [...seenIds, ...unseenNotifications.map(n => n.id)];
+      // Keep only last 100 to avoid localStorage bloat
+      const limitedSeenIds = newSeenIds.slice(-100);
+      setSeenIds(limitedSeenIds);
+      localStorage.setItem("seen_notificacoes", JSON.stringify(limitedSeenIds));
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -350,13 +368,13 @@ const Index = () => {
           <div className="flex items-center gap-3">
             <div className="relative">
               <button
-                onClick={() => setNotifOpen(!notifOpen)}
+                onClick={() => handleToggleNotif(!notifOpen)}
                 className={`relative p-2 rounded-lg transition-colors ${notifOpen ? 'bg-muted' : 'hover:bg-muted'}`}
               >
                 <Bell className="h-5 w-5 text-muted-foreground" />
-                {notifications.length > 0 && (
+                {unseenNotifications.length > 0 && (
                   <span className="absolute top-1.5 right-1.5 h-4 min-w-[16px] px-1 rounded-full bg-danger text-[10px] font-bold text-white flex items-center justify-center animate-pulse">
-                    {notifications.length}
+                    {unseenNotifications.length}
                   </span>
                 )}
               </button>
@@ -370,12 +388,13 @@ const Index = () => {
                       <span className="text-[10px] bg-danger/10 text-danger px-1.5 py-0.5 rounded-full font-bold">Urgente</span>
                     </div>
                     <div className="max-h-[350px] overflow-y-auto p-2 space-y-1">
-                      {notifications.length === 0 ? (
+                      {/* Show current unseen in the current open session */}
+                      {unseenNotifications.length === 0 ? (
                         <div className="py-8 text-center text-muted-foreground text-xs italic">
-                          Tudo em dia! Sem vencimentos próximos.
+                          Tudo em dia! Sem novos alertas.
                         </div>
                       ) : (
-                        notifications.map(n => {
+                        unseenNotifications.map(n => {
                           const isLate = new Date(n.due_date.substring(0, 10)) < new Date(new Date().toISOString().substring(0, 10));
                           return (
                             <div key={n.id} className="p-3 hover:bg-muted/50 rounded-lg transition-colors border border-transparent hover:border-border">
@@ -396,11 +415,11 @@ const Index = () => {
                         })
                       )}
                     </div>
-                    {notifications.length > 0 && (
+                    {unseenNotifications.length > 0 && (
                       <div className="p-3 border-t bg-muted/10">
                         <button
                           onClick={() => {
-                            setActiveTab(notifications[0].type === 'income' ? 'receber' : 'pagar');
+                            setActiveTab(unseenNotifications[0].type === 'income' ? 'receber' : 'pagar');
                             setNotifOpen(false);
                           }}
                           className="w-full py-2 text-[11px] font-bold text-primary hover:underline"
