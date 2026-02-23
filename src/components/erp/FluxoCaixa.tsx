@@ -13,10 +13,29 @@ export function FluxoCaixa() {
     },
   });
 
-  const entriesWithBalance = entries?.map((d: any) => ({
-    ...d,
-    actualValue: d.type === 'income' ? Number(d.value) : -Number(d.value)
-  })) || [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const entriesWithBalance = entries?.map((d: any) => {
+    let computedStatus = d.status;
+    if (d.status === 'pending') {
+      const isLate = new Date(d.due_date.substring(0, 10) + 'T00:00:00') < today;
+      computedStatus = isLate ? 'Atrasado' : 'Pendente';
+    } else if (d.status === 'paid') {
+      computedStatus = 'Pago';
+    }
+    return {
+      ...d,
+      computedStatus,
+      actualValue: d.type === 'income' ? Number(d.value) : -Number(d.value)
+    };
+  }).sort((a: any, b: any) => {
+    const order: Record<string, number> = { 'Atrasado': 1, 'Pendente': 2, 'Pago': 3 };
+    const orderA = order[a.computedStatus] || 99;
+    const orderB = order[b.computedStatus] || 99;
+    if (orderA !== orderB) return orderA - orderB;
+    return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+  }) || [];
 
   const entradas = entriesWithBalance.filter((d: any) => d.type === 'income').reduce((a: number, b: any) => a + Number(b.value), 0);
   const saidas = entriesWithBalance.filter((d: any) => d.type === 'expense').reduce((a: number, b: any) => a + Number(b.value), 0);
@@ -61,11 +80,11 @@ export function FluxoCaixa() {
             </tr>
           </thead>
           <tbody>
-            {entries?.map((row: any) => (
+            {entriesWithBalance?.map((row: any) => (
               <tr key={row.id} className="border-b last:border-b-0 hover:bg-muted/30 transition-colors">
                 <td className="p-3 text-muted-foreground">{formatDate(row.due_date)}</td>
                 <td className="p-3 font-medium text-foreground">{row.description}</td>
-                <td className="p-3"><StatusBadge status={row.status === 'paid' ? 'Pago' : (row.status === 'pending' && new Date(row.due_date.substring(0, 10) + 'T00:00:00') < new Date(new Date().setHours(0, 0, 0, 0)) ? 'Atrasado' : 'Pendente')} /></td>
+                <td className="p-3"><StatusBadge status={row.computedStatus} /></td>
                 <td className={`p-3 text-right font-semibold ${row.type === 'income' ? "text-success" : "text-danger"}`}>
                   {row.type === 'income' ? "+" : "-"}{formatCurrency(Math.abs(Number(row.value)))}
                 </td>
