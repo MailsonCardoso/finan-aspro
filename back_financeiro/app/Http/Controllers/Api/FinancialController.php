@@ -112,14 +112,13 @@ class FinancialController extends Controller
             return round((($cur - $prev) / abs($prev)) * 100, 1);
         };
 
-        // Chart: Cash Flow Data (6 months ending at selected month)
-        $cashFlowData = collect(range(5, 0))->map(function ($i) use ($selectedYear, $selectedMonth) {
-            $date = strtotime("$selectedYear-$selectedMonth-01 -$i month");
-            $month = date('m', $date);
-            $year = date('Y', $date);
+        // Chart: Cash Flow Data (Total Year: Jan to Dec)
+        $cashFlowData = collect(range(1, 12))->map(function ($monthNum) use ($selectedYear) {
+            $month = str_pad($monthNum, 2, '0', STR_PAD_LEFT);
+            $year = $selectedYear;
 
             $months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-            $monthName = $months[intval($month) - 1];
+            $monthName = $months[$monthNum - 1];
 
             $receitas = FinancialEntry::where('type', 'income')
                 ->where('status', 'paid')

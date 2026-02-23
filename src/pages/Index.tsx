@@ -67,6 +67,14 @@ const tabTitles: Record<Tab, string> = {
   configuracoes: "Configurações do Sistema",
 };
 
+interface NotificationEntry {
+  id: number;
+  description: string;
+  due_date: string;
+  type: 'income' | 'expense';
+  value: number;
+}
+
 const Index = () => {
   const [activeTab, setActiveTab] = useState<Tab>("resumo");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -76,6 +84,8 @@ const Index = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationEntry[]>([]);
+  const [notifOpen, setNotifOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -101,6 +111,23 @@ const Index = () => {
         }
       }).catch(() => {
         // Fallback or ignore if settings fail
+      });
+
+      // Fetch notifications
+      api.get("/financial/entries?status=pending").then(response => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const twoDaysFromNow = new Date();
+        twoDaysFromNow.setDate(today.getDate() + 2);
+        twoDaysFromNow.setHours(23, 59, 59, 999);
+
+        const urgent = response.data.filter((entry: any) => {
+          const dueDate = new Date(entry.due_date.substring(0, 10) + 'T00:00:00');
+          // Important: check if late OR due within next 2 days
+          return dueDate <= twoDaysFromNow;
+        });
+        setNotifications(urgent);
       });
     }
   }, []);
@@ -321,10 +348,71 @@ const Index = () => {
 
           </div>
           <div className="flex items-center gap-3">
-            <button className="relative p-2 rounded-lg hover:bg-muted transition-colors">
-              <Bell className="h-5 w-5 text-muted-foreground" />
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-danger" />
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setNotifOpen(!notifOpen)}
+                className={`relative p-2 rounded-lg transition-colors ${notifOpen ? 'bg-muted' : 'hover:bg-muted'}`}
+              >
+                <Bell className="h-5 w-5 text-muted-foreground" />
+                {notifications.length > 0 && (
+                  <span className="absolute top-1.5 right-1.5 h-4 min-w-[16px] px-1 rounded-full bg-danger text-[10px] font-bold text-white flex items-center justify-center animate-pulse">
+                    {notifications.length}
+                  </span>
+                )}
+              </button>
+
+              {notifOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
+                  <div className="absolute right-0 mt-2 w-80 bg-card border rounded-xl shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="p-4 border-b bg-muted/20 flex items-center justify-between">
+                      <h3 className="font-bold text-sm">Alertas de Vencimento</h3>
+                      <span className="text-[10px] bg-danger/10 text-danger px-1.5 py-0.5 rounded-full font-bold">Urgente</span>
+                    </div>
+                    <div className="max-h-[350px] overflow-y-auto p-2 space-y-1">
+                      {notifications.length === 0 ? (
+                        <div className="py-8 text-center text-muted-foreground text-xs italic">
+                          Tudo em dia! Sem vencimentos próximos.
+                        </div>
+                      ) : (
+                        notifications.map(n => {
+                          const isLate = new Date(n.due_date.substring(0, 10)) < new Date(new Date().toISOString().substring(0, 10));
+                          return (
+                            <div key={n.id} className="p-3 hover:bg-muted/50 rounded-lg transition-colors border border-transparent hover:border-border">
+                              <div className="flex justify-between items-start gap-2">
+                                <p className="text-xs font-bold text-foreground truncate">{n.description}</p>
+                                <span className={`text-[10px] whitespace-nowrap font-bold ${n.type === 'income' ? 'text-success' : 'text-danger'}`}>
+                                  {n.type === 'income' ? '+' : '-'} {n.value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between mt-1">
+                                <p className={`text-[10px] ${isLate ? 'text-danger font-bold' : 'text-muted-foreground'}`}>
+                                  Vence em: {new Date(n.due_date).toLocaleDateString('pt-BR')}
+                                </p>
+                                {isLate && <span className="text-[9px] uppercase font-black text-danger">Atrasado</span>}
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                    {notifications.length > 0 && (
+                      <div className="p-3 border-t bg-muted/10">
+                        <button
+                          onClick={() => {
+                            setActiveTab(notifications[0].type === 'income' ? 'receber' : 'pagar');
+                            setNotifOpen(false);
+                          }}
+                          className="w-full py-2 text-[11px] font-bold text-primary hover:underline"
+                        >
+                          Ver todas as pendências
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
             <div className="hidden sm:flex items-center gap-2 pl-3 border-l">
               <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-xs font-bold text-primary">
                 {user.name?.[0] || "A"}

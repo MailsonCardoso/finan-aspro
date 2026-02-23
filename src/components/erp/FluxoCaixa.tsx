@@ -9,6 +9,7 @@ import { MonthYearPicker } from "./MonthYearPicker";
 export function FluxoCaixa() {
   const [selectedMonth, setSelectedMonth] = useState((new Date().getMonth() + 1).toString().padStart(2, '0'));
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+  const [filterType, setFilterType] = useState<"all" | "income" | "expense">("all");
 
   const { data: entries, isLoading } = useQuery({
     queryKey: ["financial-entries", "all", selectedMonth, selectedYear],
@@ -42,6 +43,10 @@ export function FluxoCaixa() {
     return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
   }) || [];
 
+  const filteredEntries = filterType === "all"
+    ? entriesWithBalance
+    : entriesWithBalance.filter((d: any) => d.type === filterType);
+
   const entradas = entriesWithBalance.filter((d: any) => d.type === 'income').reduce((a: number, b: any) => a + Number(b.value), 0);
   const saidas = entriesWithBalance.filter((d: any) => d.type === 'expense').reduce((a: number, b: any) => a + Number(b.value), 0);
   const saldo = entries?.filter((d: any) => d.status === 'paid')
@@ -68,14 +73,25 @@ export function FluxoCaixa() {
           <h2 className="text-xl font-bold text-foreground tracking-tight">Fluxo de Caixa</h2>
           <p className="text-sm text-muted-foreground">Visão detalhada de movimentações financeiras.</p>
         </div>
-        <MonthYearPicker
-          month={selectedMonth}
-          year={selectedYear}
-          onChange={(m, y) => {
-            setSelectedMonth(m);
-            setSelectedYear(y);
-          }}
-        />
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value as any)}
+            className="h-9 px-3 border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+          >
+            <option value="all">Todos os Lançamentos</option>
+            <option value="income">Somente Entradas</option>
+            <option value="expense">Somente Saídas</option>
+          </select>
+          <MonthYearPicker
+            month={selectedMonth}
+            year={selectedYear}
+            onChange={(m, y) => {
+              setSelectedMonth(m);
+              setSelectedYear(y);
+            }}
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -98,7 +114,7 @@ export function FluxoCaixa() {
             </tr>
           </thead>
           <tbody>
-            {entriesWithBalance?.map((row: any) => (
+            {filteredEntries?.map((row: any) => (
               <tr key={row.id} className="border-b last:border-b-0 hover:bg-muted/30 transition-colors">
                 <td className="p-3 text-muted-foreground text-[11px] font-medium">
                   {formatDate(row.issue_date || row.due_date)} | {formatDate(row.due_date)}
