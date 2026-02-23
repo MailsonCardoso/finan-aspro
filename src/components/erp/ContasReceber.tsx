@@ -205,7 +205,7 @@ export function ContasReceber() {
             bank_account: formData.get('bank_account') || null,
             payment_method: formData.get('payment_method') || null,
             type: 'income',
-            status: 'pending'
+            status: formData.get('already_paid') === 'on' ? 'paid' : 'pending'
           };
 
           api.post('/financial/entries', payload).then(() => {
@@ -270,6 +270,18 @@ export function ContasReceber() {
             </div>
           </div>
 
+          <div className="flex items-center gap-2 p-3 bg-primary/5 rounded-lg border border-dashed border-primary/20">
+            <input
+              type="checkbox"
+              name="already_paid"
+              id="already_paid_income"
+              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <label htmlFor="already_paid_income" className="text-sm font-semibold text-foreground cursor-pointer">
+              Marcar como Recebido (Lançamento já realizado)
+            </label>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Valor (R$)</label>
             <input
@@ -287,7 +299,7 @@ export function ContasReceber() {
           </button>
         </form>
       </Modal>
-    </div>
+    </div >
   );
 }
 
