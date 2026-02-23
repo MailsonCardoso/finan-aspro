@@ -208,21 +208,24 @@ export function Configuracoes() {
                             </form>
                         </div>
 
-                        <div className="max-w-2xl mt-6 p-6 bg-danger/5 border border-danger/20 rounded-xl">
-                            <h4 className="font-bold text-danger flex items-center gap-2">
-                                <Trash2 className="h-4 w-4" /> Zona de Perigo
-                            </h4>
-                            <p className="text-sm text-muted-foreground mt-2 mb-4">
-                                Esta ação irá apagar permanentemente todos os lançamentos financeiros, clientes, funcionários e gastos.
-                                Os usuários administradores e as configurações de tema serão mantidos.
-                            </p>
-                            <button
-                                onClick={() => setResetConfirmOpen(true)}
-                                className="bg-danger text-white font-bold hover:bg-danger/90 px-6 py-2 rounded-lg transition-all shadow-lg active:scale-95"
-                            >
-                                Resetar Todos os Dados Operacionais
-                            </button>
-                        </div>
+                        {/* Only show Danger Zone for the specific master admin */}
+                        {JSON.parse(localStorage.getItem("user") || "{}").email === "administrador@financeiro.com.br" && (
+                            <div className="max-w-2xl mt-6 p-6 bg-danger/5 border border-danger/20 rounded-xl">
+                                <h4 className="font-bold text-danger flex items-center gap-2">
+                                    <Trash2 className="h-4 w-4" /> Zona de Perigo
+                                </h4>
+                                <p className="text-sm text-muted-foreground mt-2 mb-4">
+                                    Esta ação irá apagar permanentemente todos os lançamentos financeiros, clientes, funcionários e gastos.
+                                    Os usuários administradores e as configurações de tema serão mantidos.
+                                </p>
+                                <button
+                                    onClick={() => setResetConfirmOpen(true)}
+                                    className="bg-danger text-white font-bold hover:bg-danger/90 px-6 py-2 rounded-lg transition-all shadow-lg active:scale-95"
+                                >
+                                    Resetar Todos os Dados Operacionais
+                                </button>
+                            </div>
+                        )}
                     </>
                 )}
 
@@ -386,14 +389,16 @@ export function Configuracoes() {
                 confirmText="Remover Usuário"
             />
 
-            <ConfirmModal
-                open={resetConfirmOpen}
-                onOpenChange={setResetConfirmOpen}
-                title="RESETER TODO O SISTEMA?"
-                description="ESTA AÇÃO É IRREVERSÍVEL. Todos os dados financeiros e operacionais serão apagados. Deseja continuar?"
-                onConfirm={() => resetSystemMutation.mutate()}
-                confirmText="Sim, LIMPAR TUDO"
-            />
+            {JSON.parse(localStorage.getItem("user") || "{}").email === "administrador@financeiro.com.br" && (
+                <ConfirmModal
+                    open={resetConfirmOpen}
+                    onOpenChange={setResetConfirmOpen}
+                    title="RESETER TODO O SISTEMA?"
+                    description="ESTA AÇÃO É IRREVERSÍVEL. Todos os dados financeiros e operacionais serão apagados. Deseja continuar?"
+                    onConfirm={() => resetSystemMutation.mutate()}
+                    confirmText="Sim, LIMPAR TUDO"
+                />
+            )}
         </div>
     );
 }
