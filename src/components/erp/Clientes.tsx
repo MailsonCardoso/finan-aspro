@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Search, Plus, Edit, Loader2, Trash2 } from "lucide-react";
-import { Modal } from "./Modal";
+import { SidePanel } from "./SidePanel";
+import { ConfirmModal } from "./ConfirmModal";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { toast } from "sonner";
@@ -9,6 +10,8 @@ export function Clientes() {
     const [search, setSearch] = useState("");
     const [modalOpen, setModalOpen] = useState(false);
     const [editingClient, setEditingClient] = useState<any>(null);
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    const [clientToDelete, setClientToDelete] = useState<number | null>(null);
     const queryClient = useQueryClient();
 
     const { data: clients, isLoading } = useQuery({
@@ -50,9 +53,8 @@ export function Clientes() {
     });
 
     const handleDelete = (id: number) => {
-        if (confirm("Tem certeza que deseja excluir este cliente?")) {
-            deleteMutation.mutate(id);
-        }
+        setClientToDelete(id);
+        setDeleteConfirmOpen(true);
     };
 
     const handleEdit = (client: any) => {
@@ -143,8 +145,8 @@ export function Clientes() {
                 </table>
             </div>
 
-            <Modal open={modalOpen} onClose={closeModal} title={editingClient ? "Editar Cliente" : "Novo Cliente"}>
-                <form onSubmit={handleSubmit} className="space-y-4">
+            <SidePanel open={modalOpen} onOpenChange={setModalOpen} title={editingClient ? "Editar Cliente" : "Novo Cliente"}>
+                <form onSubmit={handleSubmit} className="space-y-4 pb-10">
                     <div>
                         <label className="block text-sm font-medium text-foreground mb-1">Nome</label>
                         <input required type="text" name="name" defaultValue={editingClient?.name} className="w-full p-2 border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
@@ -164,15 +166,23 @@ export function Clientes() {
                         </div>
                     </div>
 
-                    <div className="flex justify-end gap-2 pt-4 border-t mt-6">
-                        <button type="button" onClick={closeModal} className="px-4 py-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors text-sm font-medium">Cancelar</button>
-                        <button type="submit" disabled={saveMutation.isPending} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors text-sm font-medium flex items-center gap-2">
+                    <div className="pt-4 border-t mt-6">
+                        <button type="submit" disabled={saveMutation.isPending} className="w-full py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-all shadow-lg active:scale-95 font-bold text-sm flex items-center justify-center gap-2">
                             {saveMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-                            Salvar
+                            Salvar Cliente
                         </button>
                     </div>
                 </form>
-            </Modal>
+            </SidePanel>
+
+            <ConfirmModal
+                open={deleteConfirmOpen}
+                onOpenChange={setDeleteConfirmOpen}
+                onConfirm={() => clientToDelete && deleteMutation.mutate(clientToDelete)}
+                title="Excluir Cliente"
+                description="Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita."
+                confirmText="Excluir"
+            />
         </div>
     );
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Search, Plus, Edit, Trash2, Loader2, Package } from "lucide-react";
-import { Modal } from "./Modal";
+import { SidePanel } from "./SidePanel";
+import { ConfirmModal } from "./ConfirmModal";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { toast } from "sonner";
@@ -9,6 +10,8 @@ export function Epis() {
     const [search, setSearch] = useState("");
     const [modalOpen, setModalOpen] = useState(false);
     const [editingEpi, setEditingEpi] = useState<any>(null);
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    const [epiToDelete, setEpiToDelete] = useState<number | null>(null);
     const queryClient = useQueryClient();
 
     const { data: epis, isLoading } = useQuery({
@@ -33,9 +36,8 @@ export function Epis() {
     });
 
     const handleDelete = (id: number) => {
-        if (confirm("Tem certeza que deseja excluir este tipo de EPI?")) {
-            deleteMutation.mutate(id);
-        }
+        setEpiToDelete(id);
+        setDeleteConfirmOpen(true);
     };
 
     const handleEdit = (epi: any) => {
@@ -112,7 +114,7 @@ export function Epis() {
                 </table>
             </div>
 
-            <Modal open={modalOpen} onClose={closeModal} title={editingEpi ? "Editar EPI" : "Novo EPI"}>
+            <SidePanel open={modalOpen} onOpenChange={setModalOpen} title={editingEpi ? "Editar EPI" : "Novo EPI"}>
                 <form onSubmit={(e) => {
                     e.preventDefault();
                     const formData = new FormData(e.currentTarget);
@@ -130,7 +132,7 @@ export function Epis() {
                         closeModal();
                         toast.success(editingEpi ? "EPI atualizado!" : "EPI cadastrado!");
                     });
-                }} className="space-y-4">
+                }} className="space-y-4 pb-10">
                     <div>
                         <label className="block text-sm font-medium text-foreground mb-1">Nome do EPI</label>
                         <input name="name" defaultValue={editingEpi?.name} required placeholder="Ex: Capacete de Segurança" className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
@@ -139,11 +141,22 @@ export function Epis() {
                         <label className="block text-sm font-medium text-foreground mb-1">Descrição / CA</label>
                         <textarea name="description" defaultValue={editingEpi?.description} rows={3} placeholder="Ex: CA 12345 - Modelo Master" className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
                     </div>
-                    <button type="submit" className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors font-medium text-sm">
-                        {editingEpi ? "Salvar Alterações" : "Cadastrar EPI"}
-                    </button>
+                    <div className="pt-4 border-t mt-6">
+                        <button type="submit" className="w-full py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-all shadow-lg active:scale-95 font-bold text-sm">
+                            {editingEpi ? "Salvar Alterações" : "Cadastrar EPI"}
+                        </button>
+                    </div>
                 </form>
-            </Modal>
+            </SidePanel>
+
+            <ConfirmModal
+                open={deleteConfirmOpen}
+                onOpenChange={setDeleteConfirmOpen}
+                onConfirm={() => epiToDelete && deleteMutation.mutate(epiToDelete)}
+                title="Excluir EPI"
+                description="Tem certeza que deseja excluir este EPI? Esta ação não pode ser desfeita."
+                confirmText="Excluir"
+            />
         </div>
     );
 }

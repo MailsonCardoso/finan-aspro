@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Search, Plus, Edit, Shield, Loader2, Trash2 } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 import { formatDate } from "@/lib/format";
-import { Modal } from "./Modal";
+import { SidePanel } from "./SidePanel";
+import { ConfirmModal } from "./ConfirmModal";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { toast } from "sonner";
@@ -11,6 +12,8 @@ export function Funcionarios({ onOpenEPI }: { onOpenEPI: (employeeName?: string)
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<any>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [employeeToDelete, setEmployeeToDelete] = useState<number | null>(null);
   const queryClient = useQueryClient();
 
   const { data: employees, isLoading } = useQuery({
@@ -35,9 +38,8 @@ export function Funcionarios({ onOpenEPI }: { onOpenEPI: (employeeName?: string)
   });
 
   const handleDelete = (id: number) => {
-    if (confirm("Tem certeza que deseja excluir este funcionário?")) {
-      deleteMutation.mutate(id);
-    }
+    setEmployeeToDelete(id);
+    setDeleteConfirmOpen(true);
   };
 
   const handleEdit = (emp: any) => {
@@ -134,7 +136,7 @@ export function Funcionarios({ onOpenEPI }: { onOpenEPI: (employeeName?: string)
         </table>
       </div>
 
-      <Modal open={modalOpen} onClose={closeModal} title={editingEmployee ? "Editar Funcionário" : "Novo Funcionário"}>
+      <SidePanel open={modalOpen} onOpenChange={setModalOpen} title={editingEmployee ? "Editar Funcionário" : "Novo Funcionário"}>
         <form onSubmit={(e) => {
           e.preventDefault();
           const formData = new FormData(e.currentTarget);
@@ -174,11 +176,22 @@ export function Funcionarios({ onOpenEPI }: { onOpenEPI: (employeeName?: string)
             <label className="block text-sm font-medium text-foreground mb-1">Data de Admissão</label>
             <input name="admission_date" type="date" defaultValue={editingEmployee?.admission_date ? editingEmployee.admission_date.split('T')[0] : ""} required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
           </div>
-          <button type="submit" className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors font-medium text-sm">
-            {editingEmployee ? "Salvar Alterações" : "Cadastrar Funcionário"}
-          </button>
+          <div className="pt-4 border-t mt-6">
+            <button type="submit" className="w-full py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-all shadow-lg active:scale-95 font-bold text-sm">
+              {editingEmployee ? "Salvar Alterações" : "Cadastrar Funcionário"}
+            </button>
+          </div>
         </form>
-      </Modal>
+      </SidePanel>
+
+      <ConfirmModal
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        onConfirm={() => employeeToDelete && deleteMutation.mutate(employeeToDelete)}
+        title="Excluir Funcionário"
+        description="Tem certeza que deseja excluir este funcionário? Esta ação não pode ser desfeita."
+        confirmText="Excluir"
+      />
     </div>
   );
 }

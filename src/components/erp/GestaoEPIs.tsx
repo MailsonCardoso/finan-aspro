@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Plus, Loader2, RotateCcw, Search } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 import { formatDate } from "@/lib/format";
-import { Modal } from "./Modal";
+import { SidePanel } from "./SidePanel";
+import { ConfirmModal } from "./ConfirmModal";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { toast } from "sonner";
@@ -143,8 +144,8 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
         </table>
       </div>
 
-      {/* Modal Vincular EPI */}
-      <Modal open={isOpen} onClose={handleClose} title="Vincular EPI">
+      {/* SidePanel Vincular EPI */}
+      <SidePanel open={isOpen} onOpenChange={handleClose} title="Vincular EPI">
         <form onSubmit={(e) => {
           e.preventDefault();
           const formData = new FormData(e.currentTarget);
@@ -161,7 +162,7 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
             handleClose();
             toast.success("EPI vinculado com sucesso!");
           });
-        }} className="space-y-4">
+        }} className="space-y-4 pb-10">
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Funcionário</label>
             <select name="employee_id" required defaultValue={preselectedEmployee || ""} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
@@ -186,15 +187,17 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
               <input name="expiry_date" type="date" className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
             </div>
           </div>
-          <button type="submit" className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors font-medium text-sm">
-            Vincular EPI
-          </button>
+          <div className="pt-4 border-t mt-6">
+            <button type="submit" className="w-full py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-all shadow-lg active:scale-95 font-bold text-sm">
+              Vincular EPI
+            </button>
+          </div>
         </form>
-      </Modal>
+      </SidePanel>
 
-      {/* Modal Baixa/Devolução (Opção B) */}
-      <Modal open={returnModalOpen} onClose={closeReturnModal} title="Registrar Baixa de EPI">
-        <div className="mb-4 p-3 bg-secondary/50 rounded-lg border border-secondary">
+      {/* SidePanel Baixa/Devolução */}
+      <SidePanel open={returnModalOpen} onOpenChange={setReturnModalOpen} title="Registrar Baixa de EPI">
+        <div className="mb-6 p-4 bg-muted/50 rounded-lg border border-dashed">
           <p className="text-xs font-bold text-muted-foreground uppercase mb-1">EPI a ser devolvido</p>
           <p className="text-sm font-medium text-foreground">{selectedAssignment?.epi?.name} — {selectedAssignment?.employee?.name}</p>
         </div>
@@ -206,7 +209,7 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
             return_reason: formData.get('return_reason'),
           };
           returnMutation.mutate({ id: selectedAssignment.id, payload });
-        }} className="space-y-4">
+        }} className="space-y-4 pb-10">
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Data de Devolução / Baixa</label>
             <input name="return_date" type="date" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
@@ -222,11 +225,13 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
               <option value="Outros">Outros</option>
             </select>
           </div>
-          <button type="submit" disabled={returnMutation.isPending} className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors font-medium text-sm flex items-center justify-center gap-2">
-            {returnMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirmar Baixa"}
-          </button>
+          <div className="pt-4 border-t mt-6">
+            <button type="submit" disabled={returnMutation.isPending} className="w-full py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-all shadow-lg active:scale-95 font-bold text-sm flex items-center justify-center gap-2">
+              {returnMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirmar Baixa"}
+            </button>
+          </div>
         </form>
-      </Modal>
+      </SidePanel>
     </div>
   );
 }

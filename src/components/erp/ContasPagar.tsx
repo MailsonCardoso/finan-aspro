@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Search, Calendar, Plus, Loader2 } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { Modal } from "./Modal";
+import { SidePanel } from "./SidePanel";
 import { MonthYearPicker } from "./MonthYearPicker";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
@@ -185,7 +185,7 @@ export function ContasPagar() {
         </table>
       </div>
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Nova Conta a Pagar">
+      <SidePanel open={modalOpen} onOpenChange={setModalOpen} title="Nova Conta a Pagar">
         <form onSubmit={(e) => {
           e.preventDefault();
           const formData = new FormData(e.currentTarget);
@@ -210,7 +210,7 @@ export function ContasPagar() {
             setDisplayValue("");
             toast.success("Conta criada com sucesso!");
           });
-        }} className="space-y-4">
+        }} className="space-y-4 pb-10">
           <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 flex items-start gap-3 mb-4">
             <Calendar className="h-5 w-5 text-primary shrink-0 mt-0.5" />
             <p className="text-xs text-muted-foreground leading-relaxed">
@@ -290,12 +290,14 @@ export function ContasPagar() {
               className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
-          <button type="submit" className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors font-medium text-sm">
-            Salvar Conta
-          </button>
-        </form >
-      </Modal >
-    </div >
+          <div className="pt-4 border-t mt-6">
+            <button type="submit" className="w-full py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-all shadow-lg active:scale-95 font-bold text-sm">
+              Salvar Conta
+            </button>
+          </div>
+        </form>
+      </SidePanel>
+    </div>
   );
 }
 
