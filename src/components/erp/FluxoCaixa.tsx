@@ -100,7 +100,9 @@ export function FluxoCaixa() {
           <tbody>
             {entriesWithBalance?.map((row: any) => (
               <tr key={row.id} className="border-b last:border-b-0 hover:bg-muted/30 transition-colors">
-                <td className="p-3 text-muted-foreground">{formatDate(row.due_date)}</td>
+                <td className="p-3 text-muted-foreground text-[11px] font-medium">
+                  {formatDate(row.issue_date || row.due_date)} | {formatDate(row.due_date)}
+                </td>
                 <td className="p-3 font-medium text-foreground">{row.description}</td>
                 <td className="p-3"><StatusBadge status={row.computedStatus} /></td>
                 <td className={`p-3 text-right font-semibold ${row.type === 'income' ? "text-success" : "text-danger"}`}>
