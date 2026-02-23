@@ -76,7 +76,11 @@ interface NotificationEntry {
 }
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState<Tab>("resumo");
+  const [activeTab, setActiveTab] = useState<Tab>(() => {
+    // Tenta recuperar a última aba acessada do localStorage
+    const savedTab = localStorage.getItem("active_tab");
+    return (savedTab as Tab) || "resumo";
+  });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [epiModalOpen, setEpiModalOpen] = useState(false);
   const [epiEmployee, setEpiEmployee] = useState<string | undefined>();
@@ -135,6 +139,11 @@ const Index = () => {
       });
     }
   }, []);
+
+  // Persistir a aba ativa no localStorage sempre que mudar
+  useEffect(() => {
+    localStorage.setItem("active_tab", activeTab);
+  }, [activeTab]);
 
   const unseenNotifications = notifications.filter(n => !seenIds.includes(n.id));
 
