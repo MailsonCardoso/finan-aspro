@@ -96,6 +96,53 @@ class FinancialController extends Controller
             return round((($cur - $prev) / abs($prev)) * 100, 1);
         };
 
+        // Chart: Cash Flow Data (last 6 months)
+        $cashFlowData = collect(range(5, 0))->map(function ($i) {
+            $month = date('m', strtotime("-$i month"));
+            $year = date('Y', strtotime("-$i month"));
+
+            // Map month number to pt-BR abbr
+            $months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            $monthName = $months[intval($month) - 1];
+
+            $receitas = FinancialEntry::where('type', 'income')
+                ->where('status', 'paid')
+                ->whereYear('due_date', $year)
+                ->whereMonth('due_date', $month)
+                ->sum('value');
+
+            $despesas = FinancialEntry::where('type', 'expense')
+                ->where('status', 'paid')
+                ->whereYear('due_date', $year)
+                ->whereMonth('due_date', $month)
+                ->sum('value');
+
+            return [
+                'month' => $monthName,
+                'Receitas' => (float) $receitas,
+                'Despesas' => (float) $despesas,
+            ];
+        })->values();
+
+        // Chart: Cost Structure (Pie Chart) - Current Month
+        $costStructureRaw = FinancialEntry::where('type', 'expense')
+            ->whereYear('due_date', $currentYear)
+            ->whereMonth('due_date', $currentMonth)
+            ->selectRaw('category, SUM(value) as total')
+            ->groupBy('category')
+            ->get();
+
+        $costStructure = $costStructureRaw->map(function ($item) {
+            return [
+                'name' => $item->category ?: 'Outros',
+                'value' => (float) $item->total,
+            ];
+        });
+
+        if ($costStructure->isEmpty()) {
+            $costStructure = collect([['name' => 'Sem Despesas', 'value' => 1]]);
+        }
+
         return response()->json([
             'saldo_caixa' => (float) $current['saldo'],
             'saldo_caixa_trend' => $calculateTrend($current['saldo'], $previous['saldo']),
@@ -105,6 +152,8 @@ class FinancialController extends Controller
             'a_pagar_trend' => $calculateTrend($current['aPagar'], $previous['aPagar']),
             'lucro_liquido' => (float) $current['lucroLiquido'],
             'lucro_liquido_trend' => $calculateTrend($current['lucroLiquido'], $previous['lucroLiquido']),
+            'cash_flow_data' => $cashFlowData,
+            'cost_structure' => $costStructure,
         ]);
     }
 

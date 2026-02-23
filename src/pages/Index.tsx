@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import {
   LayoutDashboard, FileText, CreditCard, TrendingUp, BarChart3,
-  Users, Shield, Bell, Search, Menu, X, LogOut, ChevronRight, Loader2,
+  Users, Shield, Bell, Menu, X, LogOut, ChevronRight, Loader2,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Dashboard } from "@/components/erp/Dashboard";
 import { ContasReceber } from "@/components/erp/ContasReceber";
 import { ContasPagar } from "@/components/erp/ContasPagar";
@@ -272,14 +273,7 @@ const Index = () => {
         <header className="sticky top-0 z-20 bg-card border-b h-14 lg:h-16 flex items-center justify-between px-4 lg:px-8 mt-14 lg:mt-0">
           <div className="flex items-center gap-4">
             <h2 className="text-lg font-semibold text-foreground hidden sm:block">{tabTitles[activeTab]}</h2>
-            <div className="relative hidden md:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Buscar..."
-                className="pl-10 pr-4 py-2 border rounded-lg bg-background text-sm w-64 focus:outline-none focus:ring-2 focus:ring-primary/30"
-              />
-            </div>
+
           </div>
           <div className="flex items-center gap-3">
             <button className="relative p-2 rounded-lg hover:bg-muted transition-colors">

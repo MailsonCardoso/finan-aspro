@@ -4,15 +4,6 @@ import { formatCurrency } from "@/lib/format";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/api";
 
-const cashFlowData = [
-  { month: "Jul", Receitas: 85000, Despesas: 62000 },
-  { month: "Ago", Receitas: 92000, Despesas: 71000 },
-  { month: "Set", Receitas: 78000, Despesas: 65000 },
-  { month: "Out", Receitas: 105000, Despesas: 73000 },
-  { month: "Nov", Receitas: 98000, Despesas: 80000 },
-  { month: "Dez", Receitas: 115000, Despesas: 85000 },
-];
-
 const PIE_COLORS = ["#9932CC", "#7A28A3", "#B366D9", "#D4A5E8", "#E8CCF2"];
 
 export function Dashboard() {
@@ -94,7 +85,7 @@ export function Dashboard() {
         <div className="lg:col-span-2 bg-card rounded-lg border p-6">
           <h3 className="text-base font-semibold text-foreground mb-4">Fluxo de Caixa — Últimos 6 Meses</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={cashFlowData} barGap={4}>
+            <BarChart data={stats?.cash_flow_data || []} barGap={4}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(40,6%,90%)" />
               <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke="hsl(250,10%,45%)" />
               <YAxis tick={{ fontSize: 12 }} stroke="hsl(250,10%,45%)" tickFormatter={(v) => `${v / 1000}k`} />
@@ -110,12 +101,7 @@ export function Dashboard() {
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={[
-                  { name: "Folha", value: 40 },
-                  { name: "Fornecedores", value: 30 },
-                  { name: "Impostos", value: 20 },
-                  { name: "Outros", value: 10 }
-                ]}
+                data={stats?.cost_structure || []}
                 cx="50%"
                 cy="50%"
                 innerRadius={55}

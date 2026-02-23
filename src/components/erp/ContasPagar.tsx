@@ -11,7 +11,18 @@ export function ContasPagar() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("Todos");
   const [modalOpen, setModalOpen] = useState(false);
+  const [displayValue, setDisplayValue] = useState("");
   const queryClient = useQueryClient();
+
+  const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value.replace(/\D/g, "");
+    if (!val) {
+      setDisplayValue("");
+      return;
+    }
+    const numberValue = Number(val) / 100;
+    setDisplayValue(numberValue.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }));
+  };
 
   const { data: entries, isLoading } = useQuery({
     queryKey: ["financial-entries", "expense"],
@@ -129,9 +140,12 @@ export function ContasPagar() {
         <form onSubmit={(e) => {
           e.preventDefault();
           const formData = new FormData(e.currentTarget);
+          const rawValue = formData.get('value') as string;
+          const numericValue = rawValue ? Number(rawValue.replace(/\D/g, '')) / 100 : 0;
+
           const payload = {
             description: formData.get('description'),
-            value: formData.get('value'),
+            value: numericValue,
             due_date: formData.get('due_date'),
             issue_date: formData.get('issue_date'),
             type: 'expense',
@@ -141,6 +155,7 @@ export function ContasPagar() {
           api.post('/financial/entries', payload).then(() => {
             queryClient.invalidateQueries({ queryKey: ["financial-entries"] });
             setModalOpen(false);
+            setDisplayValue("");
             toast.success("Conta criada com sucesso!");
           });
         }} className="space-y-4">
@@ -170,7 +185,15 @@ export function ContasPagar() {
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Valor (R$)</label>
-            <input name="value" type="number" step="0.01" required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+            <input
+              name="value"
+              type="text"
+              value={displayValue}
+              onChange={handleValueChange}
+              required
+              placeholder="R$ 0,00"
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
           </div>
           <button type="submit" className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors font-medium text-sm">
             Salvar Conta
