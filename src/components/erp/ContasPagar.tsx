@@ -40,7 +40,7 @@ export function ContasPagar() {
 
     let computedStatus = d.status;
     if (d.status === 'pending') {
-      const isLate = new Date(d.due_date + 'T00:00:00') < today;
+      const isLate = new Date(d.due_date.substring(0, 10) + 'T00:00:00') < today;
       computedStatus = isLate ? 'Atrasado' : 'Pendente';
     } else if (d.status === 'paid') {
       computedStatus = 'Pago';
@@ -125,7 +125,7 @@ export function ContasPagar() {
                     <Calendar className="h-3.5 w-3.5" /> {formatDate(row.due_date)}
                   </span>
                 </td>
-                <td className="p-3"><StatusBadge status={row.status === 'paid' ? 'Pago' : (row.status === 'pending' && new Date(row.due_date + 'T00:00:00') < new Date(new Date().setHours(0, 0, 0, 0)) ? 'Atrasado' : 'Pendente')} /></td>
+                <td className="p-3"><StatusBadge status={row.status === 'paid' ? 'Pago' : (row.status === 'pending' && new Date(row.due_date.substring(0, 10) + 'T00:00:00') < new Date(new Date().setHours(0, 0, 0, 0)) ? 'Atrasado' : 'Pendente')} /></td>
                 <td className="p-3 text-right font-medium text-foreground">{formatCurrency(Number(row.value))}</td>
                 <td className="p-3 text-right">
                   {row.status !== "paid" && (
