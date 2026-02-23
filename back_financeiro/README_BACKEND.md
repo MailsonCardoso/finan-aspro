@@ -1,6 +1,6 @@
-# FinançasPro Backend - Laravel 11
+# CapitalPro Backend - Laravel 11
 
-Este é o backend gerado para suportar todas as funcionalidades do frontend FinançasPro.
+Este é o backend gerado para suportar todas as funcionalidades do frontend CapitalPro.
 
 ## 🚀 Como instalar no Servidor VPS
 

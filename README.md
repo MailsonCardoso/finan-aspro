@@ -1,4 +1,4 @@
-# Welcome to your Lovable project
+# CapitalPro - Sistema de Gestão Financeira Inteligente
 
 ## Project info
 

@@ -20,7 +20,7 @@ return new class extends Migration {
 
         // Insert default setting
         DB::table('settings')->insert([
-            'company_name' => 'FinançasPro ERP',
+            'company_name' => 'CapitalPro ERP',
             'theme_id' => 'purple',
             'created_at' => now(),
             'updated_at' => now(),

@@ -158,7 +158,7 @@ const Index = () => {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
       setIsAuthenticated(true);
-      toast.success("Bem-vindo ao FinançasPro!");
+      toast.success("Bem-vindo ao CapitalPro!");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Erro ao realizar login");
     } finally {
@@ -196,7 +196,7 @@ const Index = () => {
                 <TrendingUp className="h-7 w-7 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-primary-foreground">FinançasPro</h1>
+                <h1 className="text-2xl font-bold text-primary-foreground">CapitalPro</h1>
                 <p className="text-xs text-sidebar-foreground/60 uppercase tracking-tighter">Acesse sua conta</p>
               </div>
             </div>
@@ -269,7 +269,7 @@ const Index = () => {
               <TrendingUp className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-base font-bold text-primary-foreground">FinançasPro</h1>
+              <h1 className="text-base font-bold text-primary-foreground">CapitalPro</h1>
               <p className="text-[10px] text-sidebar-foreground/60 uppercase tracking-widest">ERP Corporativo</p>
             </div>
           </div>
