@@ -22,6 +22,7 @@ export function Configuracoes() {
     const [activeSubTab, setActiveSubTab] = useState<"empresa" | "usuarios" | "temas">("empresa");
     const [userModalOpen, setUserModalOpen] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState<number | null>(null);
     const [formCpf, setFormCpf] = useState("");
     const queryClient = useQueryClient();
@@ -49,6 +50,15 @@ export function Configuracoes() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["settings"] });
             toast.success("Configurações atualizadas!");
+        },
+    });
+
+    const resetSystemMutation = useMutation({
+        mutationFn: () => api.post("/financial/wipe"),
+        onSuccess: () => {
+            queryClient.invalidateQueries();
+            toast.success("Sistema resetado com sucesso!");
+            setResetConfirmOpen(false);
         },
     });
 
@@ -195,6 +205,24 @@ export function Configuracoes() {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                )}
+
+                {activeSubTab === "empresa" && (
+                    <div className="max-w-2xl mt-6 p-6 bg-danger/5 border border-danger/20 rounded-xl">
+                        <h4 className="font-bold text-danger flex items-center gap-2">
+                            <Trash2 className="h-4 w-4" /> Zona de Perigo
+                        </h4>
+                        <p className="text-xs text-muted-foreground mt-2 mb-4">
+                            Esta ação irá apagar permanentemente todos os lançamentos financeiros, clientes, funcionários e gastos.
+                            Os usuários administradores e as configurações de tema serão mantidos.
+                        </p>
+                        <button
+                            onClick={() => setResetConfirmOpen(true)}
+                            className="text-xs font-bold text-danger hover:bg-danger/10 px-4 py-2 border border-danger/30 rounded-lg transition-all"
+                        >
+                            Resetar Todos os Dados Operacionais
+                        </button>
                     </div>
                 )}
 
@@ -356,6 +384,15 @@ export function Configuracoes() {
                 description="Este usuário perderá acesso imediato ao sistema. Deseja continuar?"
                 onConfirm={() => userToDelete && deleteUserMutation.mutate(userToDelete)}
                 confirmText="Remover Usuário"
+            />
+
+            <ConfirmModal
+                open={resetConfirmOpen}
+                onOpenChange={setResetConfirmOpen}
+                title="RESETER TODO O SISTEMA?"
+                description="ESTA AÇÃO É IRREVERSÍVEL. Todos os dados financeiros e operacionais serão apagados. Deseja continuar?"
+                onConfirm={() => resetSystemMutation.mutate()}
+                confirmText="Sim, LIMPAR TUDO"
             />
         </div>
     );

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\FinancialEntry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class FinancialController extends Controller
 {
@@ -286,8 +287,29 @@ class FinancialController extends Controller
                 'income' => $currentIncome,
                 'expense' => $currentExpense,
                 'net_balance' => (float) ($currentIncome - $currentExpense),
-                'final_balance' => (float) ($prevBalance + ($currentIncome - $currentExpense))
             ]
         ]);
+    }
+
+    public function wipe()
+    {
+        Schema::disableForeignKeyConstraints();
+
+        $tables = [
+            'financial_entries',
+            'epi_assignments',
+            'epis',
+            'employees',
+            'clients',
+            'expenses'
+        ];
+
+        foreach ($tables as $table) {
+            DB::table($table)->truncate();
+        }
+
+        Schema::enableForeignKeyConstraints();
+
+        return response()->json(['message' => 'Sistema limpo com sucesso!']);
     }
 }

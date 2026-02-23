@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/financial/entries', [FinancialController::class, 'index']);
     Route::post('/financial/entries', [FinancialController::class, 'store']);
     Route::patch('/financial/entries/{id}/status', [FinancialController::class, 'updateStatus']);
+    Route::post('/financial/wipe', [FinancialController::class, 'wipe']);
 
     // RH & Funcionários
     Route::get('/employees', [EmployeeController::class, 'index']);
