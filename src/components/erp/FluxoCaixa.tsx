@@ -161,6 +161,8 @@ export function FluxoCaixa() {
             due_date: formData.get('due_date'),
             issue_date: formData.get('issue_date'),
             type: formData.get('type'),
+            bank_account: formData.get('bank_account'),
+            payment_method: formData.get('payment_method'),
             expense_type: formData.get('expense_type') || 'fixa',
             status: formData.get('already_paid') === 'on' ? 'paid' : 'pending'
           };
@@ -174,21 +176,48 @@ export function FluxoCaixa() {
             toast.success("Lançamento realizado!");
           });
         }} className="space-y-4 pb-10">
-          <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 flex items-start gap-3 mb-4">
-            <Calendar className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Use este atalho para lançar **Saldos Iniciais** ou movimentações rápidas sem sair desta tela.
-            </p>
+          <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 flex flex-col gap-3 mb-4">
+            <div className="flex items-start gap-3">
+              <Calendar className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Use este atalho para lançar **Saldos Iniciais** ou movimentações rápidas sem sair desta tela.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 p-2 bg-white rounded border border-primary/10">
+              <input
+                type="checkbox"
+                id="is_saldo_inicial"
+                onChange={(e) => {
+                  const isChecked = e.target.checked;
+                  const descInput = document.getElementsByName('description')[0] as HTMLInputElement;
+                  const incomeRadio = document.getElementsByName('type')[0] as HTMLInputElement;
+                  const expenseRadio = document.getElementsByName('type')[1] as HTMLInputElement;
+
+                  if (isChecked) {
+                    descInput.value = "Saldo Inicial";
+                    incomeRadio.checked = true;
+                    expenseRadio.disabled = true;
+                  } else {
+                    descInput.value = "";
+                    expenseRadio.disabled = false;
+                  }
+                }}
+                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <label htmlFor="is_saldo_inicial" className="text-xs font-black text-primary uppercase cursor-pointer">
+                É um Saldo Inicial?
+              </label>
+            </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Tipo de Movimentação</label>
             <div className="grid grid-cols-2 gap-2">
-              <label className="flex items-center justify-center gap-2 p-2 border rounded-lg cursor-pointer hover:bg-muted/50 has-[:checked]:bg-success/10 has-[:checked]:border-success has-[:checked]:text-success transition-all">
+              <label className="flex items-center justify-center gap-2 p-2 border rounded-lg cursor-pointer hover:bg-muted/50 has-[:checked]:bg-success/10 has-[:checked]:border-success has-[:checked]:text-success transition-all has-[:disabled]:opacity-50">
                 <input type="radio" name="type" value="income" defaultChecked className="hidden" />
                 <span className="text-xs font-bold uppercase">Entrada (+)</span>
               </label>
-              <label className="flex items-center justify-center gap-2 p-2 border rounded-lg cursor-pointer hover:bg-muted/50 has-[:checked]:bg-danger/10 has-[:checked]:border-danger has-[:checked]:text-danger transition-all">
+              <label className="flex items-center justify-center gap-2 p-2 border rounded-lg cursor-pointer hover:bg-muted/50 has-[:checked]:bg-danger/10 has-[:checked]:border-danger has-[:checked]:text-danger transition-all has-[:disabled]:opacity-50">
                 <input type="radio" name="type" value="expense" className="hidden" />
                 <span className="text-xs font-bold uppercase">Saída (-)</span>
               </label>
@@ -198,6 +227,31 @@ export function FluxoCaixa() {
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Descrição</label>
             <input name="description" placeholder="Ex: Saldo Inicial, Venda Rápida..." required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">Banco</label>
+              <select name="bank_account" className="w-full border rounded-lg px-3 py-2 bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" required>
+                <option value="">Selecione...</option>
+                <option value="Nubank">Nubank</option>
+                <option value="Banco Inter">Banco Inter</option>
+                <option value="Caixa">Caixa</option>
+                <option value="Bradesco">Bradesco</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">Forma</label>
+              <select name="payment_method" className="w-full border rounded-lg px-3 py-2 bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" required>
+                <option value="">Selecione...</option>
+                <option value="Pix">Pix</option>
+                <option value="Boleto">Boleto</option>
+                <option value="Dinheiro">Dinheiro</option>
+                <option value="Cartão de Crédito">Cartão de Crédito</option>
+                <option value="Cartão de Débito">Cartão de Débito</option>
+              </select>
+            </div>
           </div>
 
           <div>

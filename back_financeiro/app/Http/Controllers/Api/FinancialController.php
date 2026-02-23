@@ -234,6 +234,15 @@ class FinancialController extends Controller
         $year = $request->query('year', date('Y'));
         $month = $request->query('month', date('m'));
 
+        // Data limite: último dia do mês anterior
+        $lastDayOfPrevMonth = date('Y-m-d', strtotime("$year-$month-01 -1 day"));
+
+        // Saldo Acumulado até o mês anterior
+        $prevBalance = FinancialEntry::where('due_date', '<=', $lastDayOfPrevMonth)
+            ->where('status', 'paid')
+            ->selectRaw("SUM(CASE WHEN type = 'income' THEN value ELSE -value END) as total")
+            ->first()->total ?: 0;
+
         $query = FinancialEntry::whereYear('due_date', $year)
             ->whereMonth('due_date', $month)
             ->where('status', 'paid');
@@ -265,13 +274,19 @@ class FinancialController extends Controller
             ];
         })->values();
 
+        $currentIncome = (float) $entries->where('type', 'income')->sum('value');
+        $currentExpense = (float) $entries->where('type', 'expense')->sum('value');
+
         return response()->json([
             'periodo' => "$month/$year",
+            'prev_balance' => (float) $prevBalance,
             'by_account' => $byAccount,
             'by_method' => $byMethod,
             'total_month' => [
-                'income' => (float) $entries->where('type', 'income')->sum('value'),
-                'expense' => (float) $entries->where('type', 'expense')->sum('value'),
+                'income' => $currentIncome,
+                'expense' => $currentExpense,
+                'net_balance' => (float) ($currentIncome - $currentExpense),
+                'final_balance' => (float) ($prevBalance + ($currentIncome - $currentExpense))
             ]
         ]);
     }
