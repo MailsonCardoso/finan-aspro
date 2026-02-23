@@ -14,10 +14,11 @@ import { GestaoEPIs } from "@/components/erp/GestaoEPIs";
 import { Epis } from "@/components/erp/Epis";
 import { Clientes } from "@/components/erp/Clientes";
 import { Despesas } from "@/components/erp/Despesas";
+import { AnaliseFinanceira } from "@/components/erp/AnaliseFinanceira";
 import { Configuracoes } from "@/components/erp/Configuracoes";
 import api from "@/lib/api";
 
-type Tab = "resumo" | "receber" | "pagar" | "fluxo" | "dre" | "funcionarios" | "epis" | "gestao-epis" | "clientes" | "despesas" | "configuracoes";
+type Tab = "resumo" | "receber" | "pagar" | "fluxo" | "dre" | "analise" | "funcionarios" | "epis" | "gestao-epis" | "clientes" | "despesas" | "configuracoes";
 
 const navGroups = [
   {
@@ -28,6 +29,7 @@ const navGroups = [
       { id: "pagar" as Tab, label: "Contas a Pagar", icon: CreditCard },
       { id: "fluxo" as Tab, label: "Fluxo de Caixa", icon: TrendingUp },
       { id: "dre" as Tab, label: "DRE", icon: BarChart3 },
+      { id: "analise" as Tab, label: "Análise", icon: BarChart3 },
     ],
   },
   {
@@ -59,6 +61,7 @@ const tabTitles: Record<Tab, string> = {
   pagar: "Contas a Pagar",
   fluxo: "Fluxo de Caixa",
   dre: "DRE",
+  analise: "Análise Financeira",
   funcionarios: "Funcionários",
   epis: "EPI's",
   "gestao-epis": "Gestão de EPIs",
@@ -256,6 +259,7 @@ const Index = () => {
       case "pagar": return <ContasPagar />;
       case "fluxo": return <FluxoCaixa />;
       case "dre": return <DRE />;
+      case "analise": return <AnaliseFinanceira />;
       case "funcionarios": return <Funcionarios onOpenEPI={handleOpenEPI} />;
       case "epis": return <Epis />;
       case "gestao-epis": return <GestaoEPIs modalOpen={epiModalOpen} onCloseModal={() => setEpiModalOpen(false)} preselectedEmployee={epiEmployee} />;

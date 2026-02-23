@@ -228,4 +228,51 @@ class FinancialController extends Controller
             ]
         ]);
     }
+
+    public function analysis(Request $request)
+    {
+        $year = $request->query('year', date('Y'));
+        $month = $request->query('month', date('m'));
+
+        $query = FinancialEntry::whereYear('due_date', $year)
+            ->whereMonth('due_date', $month)
+            ->where('status', 'paid');
+
+        $entries = $query->get();
+
+        // Agrupamento por Conta Bancária
+        $byAccount = $entries->groupBy('bank_account')->map(function ($group, $account) {
+            $income = $group->where('type', 'income')->sum('value');
+            $expense = $group->where('type', 'expense')->sum('value');
+            return [
+                'account' => $account ?: 'Não Definida',
+                'income' => (float) $income,
+                'expense' => (float) $expense,
+                'balance' => (float) ($income - $expense)
+            ];
+        })->values();
+
+        // Agrupamento por Forma de Pagamento
+        $byMethod = $entries->groupBy('payment_method')->map(function ($group, $method) {
+            $income = $group->where('type', 'income')->sum('value');
+            $expense = $group->where('type', 'expense')->sum('value');
+            return [
+                'method' => $method ?: 'Não Definida',
+                'income' => (float) $income,
+                'expense' => (float) $expense,
+                'total' => (float) ($income + $expense),
+                'count' => $group->count()
+            ];
+        })->values();
+
+        return response()->json([
+            'periodo' => "$month/$year",
+            'by_account' => $byAccount,
+            'by_method' => $byMethod,
+            'total_month' => [
+                'income' => (float) $entries->where('type', 'income')->sum('value'),
+                'expense' => (float) $entries->where('type', 'expense')->sum('value'),
+            ]
+        ]);
+    }
 }
