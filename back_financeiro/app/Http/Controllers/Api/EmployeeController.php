@@ -30,4 +30,25 @@ class EmployeeController extends Controller
     {
         return $employee->load('epiAssignments.epi');
     }
+
+    public function update(Request $request, Employee $employee)
+    {
+        $data = $request->validate([
+            'name' => 'string',
+            'role' => 'string',
+            'department' => 'string',
+            'admission_date' => 'date',
+            'salary' => 'nullable|numeric',
+            'status' => 'string',
+        ]);
+
+        $employee->update($data);
+        return $employee;
+    }
+
+    public function destroy(Employee $employee)
+    {
+        $employee->delete();
+        return response()->noContent();
+    }
 }

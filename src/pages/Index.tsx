@@ -10,10 +10,10 @@ import { FluxoCaixa } from "@/components/erp/FluxoCaixa";
 import { DRE } from "@/components/erp/DRE";
 import { Funcionarios } from "@/components/erp/Funcionarios";
 import { GestaoEPIs } from "@/components/erp/GestaoEPIs";
+import { Epis } from "@/components/erp/Epis";
 import api from "@/lib/api";
-import { toast } from "sonner";
 
-type Tab = "resumo" | "receber" | "pagar" | "fluxo" | "dre" | "funcionarios" | "epis";
+type Tab = "resumo" | "receber" | "pagar" | "fluxo" | "dre" | "funcionarios" | "epis" | "gestao-epis";
 
 const navGroups = [
   {
@@ -30,7 +30,8 @@ const navGroups = [
     label: "Recursos Humanos",
     items: [
       { id: "funcionarios" as Tab, label: "Funcionários", icon: Users },
-      { id: "epis" as Tab, label: "Gestão de EPIs", icon: Shield },
+      { id: "epis" as Tab, label: "EPI's", icon: Shield },
+      { id: "gestao-epis" as Tab, label: "Gestão de EPIs", icon: Shield },
     ],
   },
 ];
@@ -42,7 +43,8 @@ const tabTitles: Record<Tab, string> = {
   fluxo: "Fluxo de Caixa",
   dre: "DRE",
   funcionarios: "Funcionários",
-  epis: "Gestão de EPIs",
+  epis: "EPI's",
+  "gestao-epis": "Gestão de EPIs",
 };
 
 const Index = () => {
@@ -86,7 +88,7 @@ const Index = () => {
   const handleOpenEPI = (employeeName?: string) => {
     setEpiEmployee(employeeName);
     setEpiModalOpen(true);
-    setActiveTab("epis");
+    setActiveTab("gestao-epis");
   };
 
   const handleNav = (tab: Tab) => {
@@ -158,7 +160,8 @@ const Index = () => {
       case "fluxo": return <FluxoCaixa />;
       case "dre": return <DRE />;
       case "funcionarios": return <Funcionarios onOpenEPI={handleOpenEPI} />;
-      case "epis": return <GestaoEPIs modalOpen={epiModalOpen} onCloseModal={() => setEpiModalOpen(false)} preselectedEmployee={epiEmployee} />;
+      case "epis": return <Epis />;
+      case "gestao-epis": return <GestaoEPIs modalOpen={epiModalOpen} onCloseModal={() => setEpiModalOpen(false)} preselectedEmployee={epiEmployee} />;
     }
   };
 
@@ -192,8 +195,8 @@ const Index = () => {
                     <button
                       onClick={() => handleNav(item.id)}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${activeTab === item.id
-                          ? "bg-primary text-primary-foreground font-medium"
-                          : "text-sidebar-foreground/80 hover:bg-sidebar-muted hover:text-primary-foreground"
+                        ? "bg-primary text-primary-foreground font-medium"
+                        : "text-sidebar-foreground/80 hover:bg-sidebar-muted hover:text-primary-foreground"
                         }`}
                     >
                       <item.icon className="h-4 w-4 flex-shrink-0" />
@@ -249,8 +252,8 @@ const Index = () => {
                     key={item.id}
                     onClick={() => handleNav(item.id)}
                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${activeTab === item.id
-                        ? "bg-primary text-primary-foreground font-medium"
-                        : "text-sidebar-foreground/80 hover:bg-sidebar-muted"
+                      ? "bg-primary text-primary-foreground font-medium"
+                      : "text-sidebar-foreground/80 hover:bg-sidebar-muted"
                       }`}
                   >
                     <item.icon className="h-4 w-4" />

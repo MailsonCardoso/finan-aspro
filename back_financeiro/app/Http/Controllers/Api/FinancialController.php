@@ -27,10 +27,15 @@ class FinancialController extends Controller
             'description' => 'required|string',
             'value' => 'required|numeric',
             'due_date' => 'required|date',
+            'issue_date' => 'nullable|date',
             'type' => 'required|in:income,expense',
             'category' => 'nullable|string',
             'status' => 'nullable|in:pending,paid,cancelled',
         ]);
+
+        if (empty($data['issue_date'])) {
+            $data['issue_date'] = $data['due_date'];
+        }
 
         return FinancialEntry::create($data);
     }
@@ -49,28 +54,57 @@ class FinancialController extends Controller
 
     public function dashboardStats()
     {
-        $saldo = FinancialEntry::where('status', 'paid')
-            ->selectRaw("SUM(CASE WHEN type = 'income' THEN value ELSE -value END) as total")
-            ->value('total') ?? 0;
+        $currentMonth = date('m');
+        $currentYear = date('Y');
+        $lastMonth = date('m', strtotime('-1 month'));
+        $lastYear = date('Y', strtotime('-1 month'));
 
-        $aReceber = FinancialEntry::where('type', 'income')
-            ->where('status', 'pending')
-            ->sum('value');
+        $getStats = function ($m, $y) {
+            $saldo = FinancialEntry::where('status', 'paid')
+                ->whereYear('due_date', $y)
+                ->whereMonth('due_date', $m)
+                ->selectRaw("SUM(CASE WHEN type = 'income' THEN value ELSE -value END) as total")
+                ->value('total') ?? 0;
 
-        $aPagar = FinancialEntry::where('type', 'expense')
-            ->where('status', 'pending')
-            ->sum('value');
+            $aReceber = FinancialEntry::where('type', 'income')
+                ->where('status', 'pending')
+                ->whereYear('due_date', $y)
+                ->whereMonth('due_date', $m)
+                ->sum('value');
 
-        // Lucro Líquido (simplificado: Receitas Pagas - Despesas Pagas no mês atual ou total)
-        $lucroLiquido = FinancialEntry::where('status', 'paid')
-            ->selectRaw("SUM(CASE WHEN type = 'income' THEN value ELSE -value END) as total")
-            ->value('total') ?? 0;
+            $aPagar = FinancialEntry::where('type', 'expense')
+                ->where('status', 'pending')
+                ->whereYear('due_date', $y)
+                ->whereMonth('due_date', $m)
+                ->sum('value');
+
+            $lucroLiquido = FinancialEntry::where('status', 'paid')
+                ->whereYear('due_date', $y)
+                ->whereMonth('due_date', $m)
+                ->selectRaw("SUM(CASE WHEN type = 'income' THEN value ELSE -value END) as total")
+                ->value('total') ?? 0;
+
+            return compact('saldo', 'aReceber', 'aPagar', 'lucroLiquido');
+        };
+
+        $current = $getStats($currentMonth, $currentYear);
+        $previous = $getStats($lastMonth, $lastYear);
+
+        $calculateTrend = function ($cur, $prev) {
+            if ($prev == 0)
+                return $cur > 0 ? 100 : 0;
+            return round((($cur - $prev) / abs($prev)) * 100, 1);
+        };
 
         return response()->json([
-            'saldo_caixa' => (float) $saldo,
-            'a_receber' => (float) $aReceber,
-            'a_pagar' => (float) $aPagar,
-            'lucro_liquido' => (float) $lucroLiquido,
+            'saldo_caixa' => (float) $current['saldo'],
+            'saldo_caixa_trend' => $calculateTrend($current['saldo'], $previous['saldo']),
+            'a_receber' => (float) $current['aReceber'],
+            'a_receber_trend' => $calculateTrend($current['aReceber'], $previous['aReceber']),
+            'a_pagar' => (float) $current['aPagar'],
+            'a_pagar_trend' => $calculateTrend($current['aPagar'], $previous['aPagar']),
+            'lucro_liquido' => (float) $current['lucroLiquido'],
+            'lucro_liquido_trend' => $calculateTrend($current['lucroLiquido'], $previous['lucroLiquido']),
         ]);
     }
 
@@ -79,8 +113,8 @@ class FinancialController extends Controller
         $year = $request->query('year', date('Y'));
         $month = $request->query('month', date('m'));
 
-        $query = FinancialEntry::whereYear('due_date', $year)
-            ->whereMonth('due_date', $month)
+        $query = FinancialEntry::whereYear('issue_date', $year)
+            ->whereMonth('issue_date', $month)
             ->where('status', '!=', 'cancelled');
 
         $entries = $query->get();

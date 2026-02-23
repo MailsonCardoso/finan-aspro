@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Plus, Edit, Shield, Loader2 } from "lucide-react";
+import { Search, Plus, Edit, Shield, Loader2, Trash2 } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 import { formatDate } from "@/lib/format";
 import { Modal } from "./Modal";
@@ -10,6 +10,7 @@ import { toast } from "sonner";
 export function Funcionarios({ onOpenEPI }: { onOpenEPI: (employeeName?: string) => void }) {
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingEmployee, setEditingEmployee] = useState<any>(null);
   const queryClient = useQueryClient();
 
   const { data: employees, isLoading } = useQuery({
@@ -19,6 +20,35 @@ export function Funcionarios({ onOpenEPI }: { onOpenEPI: (employeeName?: string)
       return response.data;
     },
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await api.delete(`/employees/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      toast.success("Funcionário excluído com sucesso!");
+    },
+    onError: () => {
+      toast.error("Erro ao excluir funcionário.");
+    },
+  });
+
+  const handleDelete = (id: number) => {
+    if (confirm("Tem certeza que deseja excluir este funcionário?")) {
+      deleteMutation.mutate(id);
+    }
+  };
+
+  const handleEdit = (emp: any) => {
+    setEditingEmployee(emp);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditingEmployee(null);
+  };
 
   const filtered = employees?.filter((e: any) =>
     e.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -90,8 +120,11 @@ export function Funcionarios({ onOpenEPI }: { onOpenEPI: (employeeName?: string)
                     <button onClick={() => onOpenEPI(emp.name)} className="flex items-center gap-1 text-xs px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary-hover transition-colors font-medium">
                       <Shield className="h-3 w-3" /> Vincular EPI
                     </button>
-                    <button className="text-xs px-3 py-1.5 bg-secondary text-secondary-foreground rounded-md hover:bg-muted transition-colors font-medium">
-                      <Edit className="h-3 w-3" />
+                    <button onClick={() => handleEdit(emp)} title="Editar" className="p-1.5 bg-secondary text-secondary-foreground rounded-md hover:bg-muted transition-colors">
+                      <Edit className="h-4 w-4" />
+                    </button>
+                    <button onClick={() => handleDelete(emp.id)} title="Excluir" className="p-1.5 bg-danger/10 text-danger rounded-md hover:bg-danger/20 transition-colors">
+                      <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
                 </td>
@@ -101,7 +134,7 @@ export function Funcionarios({ onOpenEPI }: { onOpenEPI: (employeeName?: string)
         </table>
       </div>
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Novo Funcionário">
+      <Modal open={modalOpen} onClose={closeModal} title={editingEmployee ? "Editar Funcionário" : "Novo Funcionário"}>
         <form onSubmit={(e) => {
           e.preventDefault();
           const formData = new FormData(e.currentTarget);
@@ -110,35 +143,39 @@ export function Funcionarios({ onOpenEPI }: { onOpenEPI: (employeeName?: string)
             role: formData.get('role'),
             department: formData.get('department'),
             admission_date: formData.get('admission_date'),
-            status: 'active'
+            status: editingEmployee?.status || 'active'
           };
 
-          api.post('/employees', payload).then(() => {
+          const request = editingEmployee
+            ? api.put(`/employees/${editingEmployee.id}`, payload)
+            : api.post('/employees', payload);
+
+          request.then(() => {
             queryClient.invalidateQueries({ queryKey: ["employees"] });
-            setModalOpen(false);
-            toast.success("Funcionário cadastrado com sucesso!");
+            closeModal();
+            toast.success(editingEmployee ? "Funcionário atualizado!" : "Funcionário cadastrado!");
           });
         }} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Nome Completo</label>
-            <input name="name" required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+            <input name="name" defaultValue={editingEmployee?.name} required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-foreground mb-1">Cargo</label>
-              <input name="role" required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              <input name="role" defaultValue={editingEmployee?.role} required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
             </div>
             <div>
               <label className="block text-sm font-medium text-foreground mb-1">Departamento</label>
-              <input name="department" required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              <input name="department" defaultValue={editingEmployee?.department} required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
             </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Data de Admissão</label>
-            <input name="admission_date" type="date" required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+            <input name="admission_date" type="date" defaultValue={editingEmployee?.admission_date ? editingEmployee.admission_date.split('T')[0] : ""} required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
           </div>
           <button type="submit" className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors font-medium text-sm">
-            Cadastrar Funcionário
+            {editingEmployee ? "Salvar Alterações" : "Cadastrar Funcionário"}
           </button>
         </form>
       </Modal>

@@ -25,10 +25,34 @@ export function Dashboard() {
   });
 
   const kpis = [
-    { label: "Saldo em Caixa", value: stats?.saldo_caixa || 0, trend: 12.5, up: true, icon: Wallet },
-    { label: "A Receber", value: stats?.a_receber || 0, trend: 8.3, up: true, icon: ArrowDownLeft },
-    { label: "A Pagar", value: stats?.a_pagar || 0, trend: 3.1, up: false, icon: ArrowUpRight },
-    { label: "Lucro Líquido", value: stats?.lucro_liquido || 0, trend: 15.2, up: true, icon: DollarSign },
+    {
+      label: "Saldo em Caixa",
+      value: stats?.saldo_caixa || 0,
+      trend: stats?.saldo_caixa_trend || 0,
+      up: (stats?.saldo_caixa_trend || 0) >= 0,
+      icon: Wallet
+    },
+    {
+      label: "A Receber",
+      value: stats?.a_receber || 0,
+      trend: stats?.a_receber_trend || 0,
+      up: (stats?.a_receber_trend || 0) >= 0,
+      icon: ArrowDownLeft
+    },
+    {
+      label: "A Pagar",
+      value: stats?.a_pagar || 0,
+      trend: stats?.a_pagar_trend || 0,
+      up: (stats?.a_pagar_trend || 0) <= 0, // Lower trend is "up" for accounts payable? Actually red/green logic usually means "good" or "bad". More debt is usually bad (red).
+      icon: ArrowUpRight
+    },
+    {
+      label: "Lucro Líquido",
+      value: stats?.lucro_liquido || 0,
+      trend: stats?.lucro_liquido_trend || 0,
+      up: (stats?.lucro_liquido_trend || 0) >= 0,
+      icon: DollarSign
+    },
   ];
 
   if (isLoading) {

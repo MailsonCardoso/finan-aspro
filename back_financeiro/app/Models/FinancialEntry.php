@@ -13,6 +13,7 @@ class FinancialEntry extends Model
         'description',
         'value',
         'due_date',
+        'issue_date',
         'payment_date',
         'status',
         'type',
@@ -22,6 +23,7 @@ class FinancialEntry extends Model
 
     protected $casts = [
         'due_date' => 'date',
+        'issue_date' => 'date',
         'payment_date' => 'date',
         'value' => 'decimal:2',
     ];

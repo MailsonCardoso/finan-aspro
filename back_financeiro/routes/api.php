@@ -28,9 +28,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/employees', [EmployeeController::class, 'index']);
     Route::post('/employees', [EmployeeController::class, 'store']);
     Route::get('/employees/{employee}', [EmployeeController::class, 'show']);
+    Route::put('/employees/{employee}', [EmployeeController::class, 'update']);
+    Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy']);
 
     // EPIs
     Route::get('/epis', [EpiController::class, 'index']);
+    Route::post('/epis', [EpiController::class, 'store']);
+    Route::put('/epis/{epi}', [EpiController::class, 'update']);
+    Route::delete('/epis/{epi}', [EpiController::class, 'destroy']);
     Route::get('/epis/assignments', [EpiController::class, 'assignments']);
     Route::post('/epis/assignments', [EpiController::class, 'storeAssignment']);
 });

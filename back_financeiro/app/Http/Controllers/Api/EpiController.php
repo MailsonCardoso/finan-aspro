@@ -14,6 +14,31 @@ class EpiController extends Controller
         return Epi::all();
     }
 
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string',
+            'description' => 'nullable|string',
+        ]);
+        return Epi::create($data);
+    }
+
+    public function update(Request $request, Epi $epi)
+    {
+        $data = $request->validate([
+            'name' => 'string',
+            'description' => 'nullable|string',
+        ]);
+        $epi->update($data);
+        return $epi;
+    }
+
+    public function destroy(Epi $epi)
+    {
+        $epi->delete();
+        return response()->noContent();
+    }
+
     public function assignments()
     {
         return EpiAssignment::with(['employee', 'epi'])->get();

@@ -133,6 +133,7 @@ export function ContasPagar() {
             description: formData.get('description'),
             value: formData.get('value'),
             due_date: formData.get('due_date'),
+            issue_date: formData.get('issue_date'),
             type: 'expense',
             status: 'pending'
           };
@@ -143,14 +144,30 @@ export function ContasPagar() {
             toast.success("Conta criada com sucesso!");
           });
         }} className="space-y-4">
+          <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 flex items-start gap-3 mb-4">
+            <Calendar className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              A <span className="font-bold text-foreground">Data de Emissão (Competência)</span> vai para o DRE do mês.
+              A <span className="font-bold text-foreground">Data de Vencimento</span> define quando o valor deve entrar/sair do Fluxo de Caixa.
+            </p>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Descrição</label>
             <input name="description" required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Data de Vencimento</label>
-            <input name="due_date" type="date" required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">Emissão (Competência)</label>
+              <input name="issue_date" type="date" required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">Data de Vencimento</label>
+              <input name="due_date" type="date" required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+            </div>
           </div>
+
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Valor (R$)</label>
             <input name="value" type="number" step="0.01" required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
