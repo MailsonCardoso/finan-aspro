@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   LayoutDashboard, FileText, CreditCard, TrendingUp, BarChart3,
-  Users, Shield, Bell, Menu, X, LogOut, ChevronRight, Loader2,
+  Users, Shield, Bell, Menu, X, LogOut, ChevronRight, Loader2, Settings
 } from "lucide-react";
 import { toast } from "sonner";
 import { Dashboard } from "@/components/erp/Dashboard";
@@ -14,9 +14,10 @@ import { GestaoEPIs } from "@/components/erp/GestaoEPIs";
 import { Epis } from "@/components/erp/Epis";
 import { Clientes } from "@/components/erp/Clientes";
 import { Despesas } from "@/components/erp/Despesas";
+import { Configuracoes } from "@/components/erp/Configuracoes";
 import api from "@/lib/api";
 
-type Tab = "resumo" | "receber" | "pagar" | "fluxo" | "dre" | "funcionarios" | "epis" | "gestao-epis" | "clientes" | "despesas";
+type Tab = "resumo" | "receber" | "pagar" | "fluxo" | "dre" | "funcionarios" | "epis" | "gestao-epis" | "clientes" | "despesas" | "configuracoes";
 
 const navGroups = [
   {
@@ -44,6 +45,12 @@ const navGroups = [
       { id: "gestao-epis" as Tab, label: "Gestão de EPIs", icon: Shield },
     ],
   },
+  {
+    label: "Sistema",
+    items: [
+      { id: "configuracoes" as Tab, label: "Configurações", icon: Settings },
+    ],
+  },
 ];
 
 const tabTitles: Record<Tab, string> = {
@@ -57,6 +64,7 @@ const tabTitles: Record<Tab, string> = {
   "gestao-epis": "Gestão de EPIs",
   clientes: "Clientes",
   despesas: "Categorias de Despesas",
+  configuracoes: "Configurações do Sistema",
 };
 
 const Index = () => {
@@ -72,6 +80,29 @@ const Index = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     setIsAuthenticated(!!token);
+
+    // Load theme from settings if authenticated
+    if (token) {
+      api.get("/settings").then(response => {
+        const settings = response.data;
+        if (settings && settings.theme_id) {
+          const THEMES = [
+            { id: "purple", name: "Imperial Purple (Padrão)", primary: "280 61% 50%", sidebar: "265 44% 15%" },
+            { id: "blue", name: "Ocean Blue", primary: "210 100% 50%", sidebar: "220 45% 15%" },
+            { id: "green", name: "Nature Green", primary: "142 71% 45%", sidebar: "150 40% 12%" },
+            { id: "orange", name: "Sunset Orange", primary: "24 100% 50%", sidebar: "24 30% 12%" },
+            { id: "slate", name: "Modern Slate", primary: "215 25% 27%", sidebar: "222 47% 11%" },
+          ];
+          const theme = THEMES.find(t => t.id === settings.theme_id);
+          if (theme) {
+            document.documentElement.style.setProperty("--primary", theme.primary);
+            document.documentElement.style.setProperty("--sidebar", theme.sidebar);
+          }
+        }
+      }).catch(() => {
+        // Fallback or ignore if settings fail
+      });
+    }
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -176,6 +207,7 @@ const Index = () => {
       case "gestao-epis": return <GestaoEPIs modalOpen={epiModalOpen} onCloseModal={() => setEpiModalOpen(false)} preselectedEmployee={epiEmployee} />;
       case "clientes": return <Clientes />;
       case "despesas": return <Despesas />;
+      case "configuracoes": return <Configuracoes />;
     }
   };
 

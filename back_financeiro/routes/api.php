@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\EpiController;
 use App\Http\Controllers\Api\FinancialController;
 use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\ExpenseController;
+use App\Http\Controllers\Api\SettingsController;
+use App\Http\Controllers\Api\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +23,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Clientes e Despesas
     Route::apiResource('clients', ClientController::class);
     Route::apiResource('expenses', ExpenseController::class);
+    Route::apiResource('users', UserController::class);
+
+    // Configurações
+    Route::get('/settings', [SettingsController::class, 'index']);
+    Route::post('/settings', [SettingsController::class, 'update']);
 
     // Financeiro
     Route::get('/dashboard/stats', [FinancialController::class, 'dashboardStats']);
