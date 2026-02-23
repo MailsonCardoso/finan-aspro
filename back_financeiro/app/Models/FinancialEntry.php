@@ -19,7 +19,21 @@ class FinancialEntry extends Model
         'type',
         'category',
         'observations',
+        'client_id',
+        'expense_id',
+        'bank_account',
+        'payment_method',
     ];
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+
+    public function expense()
+    {
+        return $this->belongsTo(Expense::class);
+    }
 
     protected $casts = [
         'due_date' => 'date',

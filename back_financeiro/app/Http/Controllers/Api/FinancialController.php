@@ -31,6 +31,10 @@ class FinancialController extends Controller
             'type' => 'required|in:income,expense',
             'category' => 'nullable|string',
             'status' => 'nullable|in:pending,paid,cancelled',
+            'client_id' => 'nullable|exists:clients,id',
+            'expense_id' => 'nullable|exists:expenses,id',
+            'bank_account' => 'nullable|string',
+            'payment_method' => 'nullable|string',
         ]);
 
         if (empty($data['issue_date'])) {

@@ -12,9 +12,11 @@ import { DRE } from "@/components/erp/DRE";
 import { Funcionarios } from "@/components/erp/Funcionarios";
 import { GestaoEPIs } from "@/components/erp/GestaoEPIs";
 import { Epis } from "@/components/erp/Epis";
+import { Clientes } from "@/components/erp/Clientes";
+import { Despesas } from "@/components/erp/Despesas";
 import api from "@/lib/api";
 
-type Tab = "resumo" | "receber" | "pagar" | "fluxo" | "dre" | "funcionarios" | "epis" | "gestao-epis";
+type Tab = "resumo" | "receber" | "pagar" | "fluxo" | "dre" | "funcionarios" | "epis" | "gestao-epis" | "clientes" | "despesas";
 
 const navGroups = [
   {
@@ -25,6 +27,13 @@ const navGroups = [
       { id: "pagar" as Tab, label: "Contas a Pagar", icon: CreditCard },
       { id: "fluxo" as Tab, label: "Fluxo de Caixa", icon: TrendingUp },
       { id: "dre" as Tab, label: "DRE", icon: BarChart3 },
+    ],
+  },
+  {
+    label: "Cadastros",
+    items: [
+      { id: "clientes" as Tab, label: "Clientes", icon: Users },
+      { id: "despesas" as Tab, label: "Despesas", icon: FileText },
     ],
   },
   {
@@ -46,6 +55,8 @@ const tabTitles: Record<Tab, string> = {
   funcionarios: "Funcionários",
   epis: "EPI's",
   "gestao-epis": "Gestão de EPIs",
+  clientes: "Clientes",
+  despesas: "Categorias de Despesas",
 };
 
 const Index = () => {
@@ -163,6 +174,8 @@ const Index = () => {
       case "funcionarios": return <Funcionarios onOpenEPI={handleOpenEPI} />;
       case "epis": return <Epis />;
       case "gestao-epis": return <GestaoEPIs modalOpen={epiModalOpen} onCloseModal={() => setEpiModalOpen(false)} preselectedEmployee={epiEmployee} />;
+      case "clientes": return <Clientes />;
+      case "despesas": return <Despesas />;
     }
   };
 

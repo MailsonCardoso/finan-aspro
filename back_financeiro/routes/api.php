@@ -4,7 +4,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\EpiController;
 use App\Http\Controllers\Api\FinancialController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ClientController;
+use App\Http\Controllers\Api\ExpenseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +17,10 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Clientes e Despesas
+    Route::apiResource('clients', ClientController::class);
+    Route::apiResource('expenses', ExpenseController::class);
 
     // Financeiro
     Route::get('/dashboard/stats', [FinancialController::class, 'dashboardStats']);

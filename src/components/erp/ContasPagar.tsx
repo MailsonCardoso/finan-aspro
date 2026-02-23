@@ -32,6 +32,14 @@ export function ContasPagar() {
     },
   });
 
+  const { data: expenses } = useQuery({
+    queryKey: ["expenses"],
+    queryFn: async () => {
+      const response = await api.get("/expenses");
+      return response.data;
+    },
+  });
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -115,8 +123,9 @@ export function ContasPagar() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b bg-muted/50">
-              <th className="text-left p-3 font-medium text-muted-foreground">Descrição</th>
-              <th className="text-left p-3 font-medium text-muted-foreground">Vencimento</th>
+              <th className="text-left p-3 font-medium text-muted-foreground w-1/4">Descrição / Categoria</th>
+              <th className="text-left p-3 font-medium text-muted-foreground">Conta / Forma Pag.</th>
+              <th className="text-left p-3 font-medium text-muted-foreground">Emissão / Vencimento</th>
               <th className="text-left p-3 font-medium text-muted-foreground">Estado</th>
               <th className="text-right p-3 font-medium text-muted-foreground">Valor</th>
               <th className="text-right p-3 font-medium text-muted-foreground">Ações</th>
@@ -125,10 +134,24 @@ export function ContasPagar() {
           <tbody>
             {filtered.map((row: any) => (
               <tr key={row.id} className="border-b last:border-b-0 hover:bg-muted/30 transition-colors">
-                <td className="p-3 font-medium text-foreground">{row.description}</td>
                 <td className="p-3">
-                  <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-                    <Calendar className="h-3.5 w-3.5" /> {formatDate(row.due_date)}
+                  <div className="font-medium text-foreground">{row.description}</div>
+                  {row.expense_id && (
+                    <div className="text-xs mt-1 text-muted-foreground">
+                      Despesa: {expenses?.find((e: any) => e.id === row.expense_id)?.name || 'Desconhecido'}
+                    </div>
+                  )}
+                </td>
+                <td className="p-3">
+                  <div className="text-sm font-medium">{row.bank_account || '-'}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{row.payment_method || '-'}</div>
+                </td>
+                <td className="p-3">
+                  <span className="inline-flex items-center gap-1.5 text-muted-foreground block text-xs">
+                    <Calendar className="h-3.5 w-3.5" /> E: {formatDate(row.issue_date || row.due_date)}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 text-muted-foreground block text-xs mt-0.5">
+                    <Calendar className="h-3.5 w-3.5 text-danger/80" /> V: {formatDate(row.due_date)}
                   </span>
                 </td>
                 <td className="p-3"><StatusBadge status={row.computedStatus} /></td>
@@ -161,6 +184,9 @@ export function ContasPagar() {
             value: numericValue,
             due_date: formData.get('due_date'),
             issue_date: formData.get('issue_date'),
+            expense_id: formData.get('expense_id') || null,
+            bank_account: formData.get('bank_account') || null,
+            payment_method: formData.get('payment_method') || null,
             type: 'expense',
             status: 'pending'
           };
@@ -183,6 +209,37 @@ export function ContasPagar() {
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Descrição</label>
             <input name="description" required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">Categoria de Despesa</label>
+            <select name="expense_id" className="w-full border rounded-lg px-3 py-2 bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+              <option value="">Selecione uma despesa (Opcional)...</option>
+              {expenses?.map((e: any) => (
+                <option key={e.id} value={e.id}>{e.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">Conta de Pagamento</label>
+              <select name="bank_account" className="w-full border rounded-lg px-3 py-2 bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+                <option value="">Selecione...</option>
+                <option value="Nubank">Nubank</option>
+                <option value="Banco Inter">Banco Inter</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">Forma de Pagamento</label>
+              <select name="payment_method" className="w-full border rounded-lg px-3 py-2 bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+                <option value="">Selecione...</option>
+                <option value="Pix">Pix</option>
+                <option value="Dinheiro">Dinheiro</option>
+                <option value="Cartão de Crédito">Cartão de Crédito</option>
+                <option value="Cartão de Débito">Cartão de Débito</option>
+              </select>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
