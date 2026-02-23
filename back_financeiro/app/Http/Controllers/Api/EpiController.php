@@ -55,4 +55,20 @@ class EpiController extends Controller
 
         return EpiAssignment::create($data);
     }
+
+    public function returnAssignment(Request $request, EpiAssignment $assignment)
+    {
+        $data = $request->validate([
+            'return_date' => 'required|date',
+            'return_reason' => 'required|string',
+        ]);
+
+        $assignment->update([
+            'return_date' => $data['return_date'],
+            'return_reason' => $data['return_reason'],
+            'status' => 'returned'
+        ]);
+
+        return $assignment;
+    }
 }

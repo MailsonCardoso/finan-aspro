@@ -14,12 +14,15 @@ class EpiAssignment extends Model
         'epi_id',
         'assignment_date',
         'expiry_date',
+        'return_date',
+        'return_reason',
         'status',
     ];
 
     protected $casts = [
         'assignment_date' => 'date',
         'expiry_date' => 'date',
+        'return_date' => 'date',
     ];
 
     public function employee()

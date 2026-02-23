@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, RotateCcw } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 import { formatDate } from "@/lib/format";
 import { Modal } from "./Modal";
@@ -9,10 +9,14 @@ import { toast } from "sonner";
 
 export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { modalOpen: boolean; onCloseModal: () => void; preselectedEmployee?: string }) {
   const [internalModal, setInternalModal] = useState(false);
+  const [returnModalOpen, setReturnModalOpen] = useState(false);
+  const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
+
   const isOpen = modalOpen || internalModal;
   const queryClient = useQueryClient();
 
   const handleClose = () => { onCloseModal(); setInternalModal(false); };
+  const closeReturnModal = () => { setReturnModalOpen(false); setSelectedAssignment(null); };
 
   const { data: assignments, isLoading: loadingAssignments } = useQuery({
     queryKey: ["epi-assignments"],
@@ -38,10 +42,26 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
     },
   });
 
+  const returnMutation = useMutation({
+    mutationFn: async ({ id, payload }: { id: number; payload: any }) => {
+      await api.patch(`/epis/assignments/${id}/return`, payload);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["epi-assignments"] });
+      closeReturnModal();
+      toast.success("Baixa de EPI registrada!");
+    },
+  });
+
+  const handleOpenReturn = (assignment: any) => {
+    setSelectedAssignment(assignment);
+    setReturnModalOpen(true);
+  };
+
   const kpis = [
     { label: "EPIs Ativos", value: assignments?.filter((a: any) => a.status === 'delivered').length.toString() || "0" },
     { label: "Vencendo / Vencidos", value: assignments?.filter((a: any) => a.status === 'expired').length.toString() || "0" },
-    { label: "Total Registros", value: assignments?.length.toString() || "0" },
+    { label: "Devolvidos", value: assignments?.filter((a: any) => a.status === 'returned').length.toString() || "0" },
   ];
 
   if (loadingAssignments) {
@@ -77,24 +97,42 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
               <th className="text-left p-3 font-medium text-muted-foreground">Funcionário</th>
               <th className="text-left p-3 font-medium text-muted-foreground">EPI Entregue</th>
               <th className="text-left p-3 font-medium text-muted-foreground">Data da Entrega</th>
-              <th className="text-left p-3 font-medium text-muted-foreground">Próxima Troca</th>
+              <th className="text-left p-3 font-medium text-muted-foreground">Observação / Baixa</th>
               <th className="text-left p-3 font-medium text-muted-foreground">Estado</th>
+              <th className="text-right p-3 font-medium text-muted-foreground">Ações</th>
             </tr>
           </thead>
           <tbody>
             {assignments?.map((row: any) => (
-              <tr key={row.id} className="border-b last:border-b-0 hover:bg-muted/30 transition-colors">
+              <tr key={row.id} className={`border-b last:border-b-0 hover:bg-muted/30 transition-colors ${row.status === 'returned' ? 'opacity-60 bg-muted/10' : ''}`}>
                 <td className="p-3 font-medium text-foreground">{row.employee?.name}</td>
                 <td className="p-3 text-muted-foreground">{row.epi?.name}</td>
                 <td className="p-3 text-muted-foreground">{formatDate(row.assignment_date)}</td>
-                <td className="p-3 text-muted-foreground">{formatDate(row.expiry_date)}</td>
-                <td className="p-3"><StatusBadge status={row.status === 'delivered' ? 'Válido' : 'Vencido'} /></td>
+                <td className="p-3 text-muted-foreground text-xs italic">
+                  {row.status === 'returned'
+                    ? `Devolvido em ${formatDate(row.return_date)}: ${row.return_reason}`
+                    : `Validade: ${formatDate(row.expiry_date)}`}
+                </td>
+                <td className="p-3">
+                  <StatusBadge
+                    status={row.status === 'returned' ? 'Pago' : (row.status === 'delivered' ? 'Válido' : 'Vencido')}
+                    label={row.status === 'returned' ? 'Devolvido' : (row.status === 'delivered' ? 'Válido' : 'Vencido')}
+                  />
+                </td>
+                <td className="p-3 text-right">
+                  {row.status !== 'returned' && (
+                    <button onClick={() => handleOpenReturn(row)} title="Dar Baixa (Devolver)" className="p-1.5 bg-secondary text-secondary-foreground rounded-md hover:bg-primary hover:text-primary-foreground transition-colors">
+                      <RotateCcw className="h-4 w-4" />
+                    </button>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
+      {/* Modal Vincular EPI */}
       <Modal open={isOpen} onClose={handleClose} title="Vincular EPI">
         <form onSubmit={(e) => {
           e.preventDefault();
@@ -142,7 +180,42 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
           </button>
         </form>
       </Modal>
+
+      {/* Modal Baixa/Devolução (Opção B) */}
+      <Modal open={returnModalOpen} onClose={closeReturnModal} title="Registrar Baixa de EPI">
+        <div className="mb-4 p-3 bg-secondary/50 rounded-lg border border-secondary">
+          <p className="text-xs font-bold text-muted-foreground uppercase mb-1">EPI a ser devolvido</p>
+          <p className="text-sm font-medium text-foreground">{selectedAssignment?.epi?.name} — {selectedAssignment?.employee?.name}</p>
+        </div>
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.currentTarget);
+          const payload = {
+            return_date: formData.get('return_date'),
+            return_reason: formData.get('return_reason'),
+          };
+          returnMutation.mutate({ id: selectedAssignment.id, payload });
+        }} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">Data de Devolução / Baixa</label>
+            <input name="return_date" type="date" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">Motivo da Baixa</label>
+            <select name="return_reason" required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+              <option value="" disabled selected>Selecione o motivo</option>
+              <option value="Devolução (Demissão)">Devolução (Demissão)</option>
+              <option value="Troca por Desgaste">Troca por Desgaste</option>
+              <option value="Troca por Vencimento">Troca por Vencimento</option>
+              <option value="Extravio / Perda">Extravio / Perda</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+          <button type="submit" disabled={returnMutation.isPending} className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors font-medium text-sm flex items-center justify-center gap-2">
+            {returnMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirmar Baixa"}
+          </button>
+        </form>
+      </Modal>
     </div>
   );
 }
-
