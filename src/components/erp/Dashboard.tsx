@@ -81,7 +81,21 @@ export function Dashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="flex flex-col gap-6">
+        <div className="bg-card rounded-lg border p-6">
+          <h3 className="text-base font-semibold text-foreground mb-4">Fluxo de Caixa — Últimos 6 Meses</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={stats?.cash_flow_data || []} barGap={4}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(40,6%,90%)" />
+              <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke="hsl(250,10%,45%)" />
+              <YAxis tick={{ fontSize: 12 }} stroke="hsl(250,10%,45%)" tickFormatter={(v) => `${v / 1000}k`} />
+              <Tooltip formatter={(value: number) => formatCurrency(value)} contentStyle={{ borderRadius: 8, border: "1px solid hsl(40,6%,90%)" }} />
+              <Bar dataKey="Receitas" fill="#9932CC" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Despesas" fill="#D4A5E8" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
         <div className="bg-card rounded-lg border p-6">
           <h3 className="text-base font-semibold text-foreground mb-4">Estrutura de Custos</h3>
           <ResponsiveContainer width="100%" height={300}>
@@ -103,20 +117,6 @@ export function Dashboard() {
               </Pie>
               <Tooltip />
             </PieChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="lg:col-span-2 bg-card rounded-lg border p-6">
-          <h3 className="text-base font-semibold text-foreground mb-4">Fluxo de Caixa — Últimos 6 Meses</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={stats?.cash_flow_data || []} barGap={4}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(40,6%,90%)" />
-              <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke="hsl(250,10%,45%)" />
-              <YAxis tick={{ fontSize: 12 }} stroke="hsl(250,10%,45%)" tickFormatter={(v) => `${v / 1000}k`} />
-              <Tooltip formatter={(value: number) => formatCurrency(value)} contentStyle={{ borderRadius: 8, border: "1px solid hsl(40,6%,90%)" }} />
-              <Bar dataKey="Receitas" fill="#9932CC" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Despesas" fill="#D4A5E8" radius={[4, 4, 0, 0]} />
-            </BarChart>
           </ResponsiveContainer>
         </div>
       </div>

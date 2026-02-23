@@ -148,10 +148,10 @@ export function ContasPagar() {
                 </td>
                 <td className="p-3">
                   <span className="inline-flex items-center gap-1.5 text-muted-foreground block text-xs">
-                    <Calendar className="h-3.5 w-3.5" /> E: {formatDate(row.issue_date || row.due_date)}
+                    E: {formatDate(row.issue_date || row.due_date)}
                   </span>
                   <span className="inline-flex items-center gap-1.5 text-muted-foreground block text-xs mt-0.5">
-                    <Calendar className="h-3.5 w-3.5 text-danger/80" /> V: {formatDate(row.due_date)}
+                    V: {formatDate(row.due_date)}
                   </span>
                 </td>
                 <td className="p-3"><StatusBadge status={row.computedStatus} /></td>
