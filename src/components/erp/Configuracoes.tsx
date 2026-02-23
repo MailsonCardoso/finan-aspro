@@ -134,96 +134,96 @@ export function Configuracoes() {
             {/* Content Area */}
             <div className="mt-6">
                 {activeSubTab === "empresa" && (
-                    <div className="max-w-2xl bg-card border rounded-xl shadow-sm overflow-hidden">
-                        <div className="p-6 border-b bg-muted/20">
-                            <h3 className="font-bold text-foreground flex items-center gap-2">
-                                <Building2 className="h-5 w-5 text-primary" /> Informações Corporativas
-                            </h3>
-                            <p className="text-xs text-muted-foreground mt-1">Estes dados aparecerão em relatórios e cabeçalhos.</p>
+                    <>
+                        <div className="max-w-2xl bg-card border rounded-xl shadow-sm overflow-hidden">
+                            <div className="p-6 border-b bg-muted/20">
+                                <h3 className="font-bold text-foreground flex items-center gap-2">
+                                    <Building2 className="h-5 w-5 text-primary" /> Informações Corporativas
+                                </h3>
+                                <p className="text-xs text-muted-foreground mt-1">Estes dados aparecerão em relatórios e cabeçalhos.</p>
+                            </div>
+                            <form
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    const formData = new FormData(e.currentTarget);
+                                    updateSettingsMutation.mutate(Object.fromEntries(formData));
+                                }}
+                                className="p-6 space-y-4"
+                            >
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="col-span-1 sm:col-span-2">
+                                        <label className="block text-sm font-medium text-muted-foreground mb-1">Nome Fantasia / Razão Social</label>
+                                        <input
+                                            name="company_name"
+                                            defaultValue={settings?.company_name}
+                                            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-muted-foreground mb-1">CNPJ</label>
+                                        <input
+                                            name="company_cnpj"
+                                            defaultValue={settings?.company_cnpj}
+                                            placeholder="00.000.000/0000-00"
+                                            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-muted-foreground mb-1">Telefone</label>
+                                        <input
+                                            name="company_phone"
+                                            defaultValue={settings?.company_phone}
+                                            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                                        />
+                                    </div>
+                                    <div className="col-span-1 sm:col-span-2">
+                                        <label className="block text-sm font-medium text-muted-foreground mb-1">E-mail de Contato</label>
+                                        <input
+                                            name="company_email"
+                                            type="email"
+                                            defaultValue={settings?.company_email}
+                                            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                                        />
+                                    </div>
+                                    <div className="col-span-1 sm:col-span-2">
+                                        <label className="block text-sm font-medium text-muted-foreground mb-1">Endereço Completo</label>
+                                        <textarea
+                                            name="company_address"
+                                            rows={2}
+                                            defaultValue={settings?.company_address}
+                                            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none resize-none"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="pt-4 flex justify-end">
+                                    <button
+                                        type="submit"
+                                        disabled={updateSettingsMutation.isPending}
+                                        className="bg-primary text-primary-foreground px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:shadow-lg transition-all"
+                                    >
+                                        {updateSettingsMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                                        Salvar Alterações
+                                    </button>
+                                </div>
+                            </form>
                         </div>
-                        <form
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                const formData = new FormData(e.currentTarget);
-                                updateSettingsMutation.mutate(Object.fromEntries(formData));
-                            }}
-                            className="p-6 space-y-4"
-                        >
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="col-span-1 sm:col-span-2">
-                                    <label className="block text-sm font-medium text-muted-foreground mb-1">Nome Fantasia / Razão Social</label>
-                                    <input
-                                        name="company_name"
-                                        defaultValue={settings?.company_name}
-                                        className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-muted-foreground mb-1">CNPJ</label>
-                                    <input
-                                        name="company_cnpj"
-                                        defaultValue={settings?.company_cnpj}
-                                        placeholder="00.000.000/0000-00"
-                                        className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-muted-foreground mb-1">Telefone</label>
-                                    <input
-                                        name="company_phone"
-                                        defaultValue={settings?.company_phone}
-                                        className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
-                                    />
-                                </div>
-                                <div className="col-span-1 sm:col-span-2">
-                                    <label className="block text-sm font-medium text-muted-foreground mb-1">E-mail de Contato</label>
-                                    <input
-                                        name="company_email"
-                                        type="email"
-                                        defaultValue={settings?.company_email}
-                                        className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
-                                    />
-                                </div>
-                                <div className="col-span-1 sm:col-span-2">
-                                    <label className="block text-sm font-medium text-muted-foreground mb-1">Endereço Completo</label>
-                                    <textarea
-                                        name="company_address"
-                                        rows={2}
-                                        defaultValue={settings?.company_address}
-                                        className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none resize-none"
-                                    />
-                                </div>
-                            </div>
-                            <div className="pt-4 flex justify-end">
-                                <button
-                                    type="submit"
-                                    disabled={updateSettingsMutation.isPending}
-                                    className="bg-primary text-primary-foreground px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:shadow-lg transition-all"
-                                >
-                                    {updateSettingsMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                                    Salvar Alterações
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                )}
 
-                {activeSubTab === "empresa" && (
-                    <div className="max-w-2xl mt-6 p-6 bg-danger/5 border border-danger/20 rounded-xl">
-                        <h4 className="font-bold text-danger flex items-center gap-2">
-                            <Trash2 className="h-4 w-4" /> Zona de Perigo
-                        </h4>
-                        <p className="text-xs text-muted-foreground mt-2 mb-4">
-                            Esta ação irá apagar permanentemente todos os lançamentos financeiros, clientes, funcionários e gastos.
-                            Os usuários administradores e as configurações de tema serão mantidos.
-                        </p>
-                        <button
-                            onClick={() => setResetConfirmOpen(true)}
-                            className="text-xs font-bold text-danger hover:bg-danger/10 px-4 py-2 border border-danger/30 rounded-lg transition-all"
-                        >
-                            Resetar Todos os Dados Operacionais
-                        </button>
-                    </div>
+                        <div className="max-w-2xl mt-6 p-6 bg-danger/5 border border-danger/20 rounded-xl">
+                            <h4 className="font-bold text-danger flex items-center gap-2">
+                                <Trash2 className="h-4 w-4" /> Zona de Perigo
+                            </h4>
+                            <p className="text-sm text-muted-foreground mt-2 mb-4">
+                                Esta ação irá apagar permanentemente todos os lançamentos financeiros, clientes, funcionários e gastos.
+                                Os usuários administradores e as configurações de tema serão mantidos.
+                            </p>
+                            <button
+                                onClick={() => setResetConfirmOpen(true)}
+                                className="bg-danger text-white font-bold hover:bg-danger/90 px-6 py-2 rounded-lg transition-all shadow-lg active:scale-95"
+                            >
+                                Resetar Todos os Dados Operacionais
+                            </button>
+                        </div>
+                    </>
                 )}
 
                 {activeSubTab === "usuarios" && (
