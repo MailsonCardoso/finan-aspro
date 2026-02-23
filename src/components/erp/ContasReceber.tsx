@@ -149,10 +149,10 @@ export function ContasReceber() {
                 </td>
                 <td className="p-3">
                   <span className="inline-flex items-center gap-1.5 text-muted-foreground block text-xs">
-                    E: {formatDate(row.issue_date || row.due_date)}
+                    Emissão: {formatDate(row.issue_date || row.due_date)}
                   </span>
                   <span className="inline-flex items-center gap-1.5 text-muted-foreground block text-xs mt-0.5">
-                    V: {formatDate(row.due_date)}
+                    Vencimento: {formatDate(row.due_date)}
                   </span>
                 </td>
                 <td className="p-3"><StatusBadge status={row.computedStatus} /></td>
