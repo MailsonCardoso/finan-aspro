@@ -252,6 +252,7 @@ export function ContasReceber() {
                 <option value="Dinheiro">Dinheiro</option>
                 <option value="Cartão de Crédito">Cartão de Crédito</option>
                 <option value="Cartão de Débito">Cartão de Débito</option>
+                <option value="Boleto">Boleto</option>
               </select>
             </div>
           </div>
