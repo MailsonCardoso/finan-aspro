@@ -1,15 +1,30 @@
 import { useState } from "react";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { StatusBadge } from "./StatusBadge";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus, Calendar } from "lucide-react";
 import { MonthYearPicker } from "./MonthYearPicker";
+import { SidePanel } from "./SidePanel";
+import { toast } from "sonner";
 
 export function FluxoCaixa() {
   const [selectedMonth, setSelectedMonth] = useState((new Date().getMonth() + 1).toString().padStart(2, '0'));
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
   const [filterType, setFilterType] = useState<"all" | "income" | "expense">("all");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [displayValue, setDisplayValue] = useState("");
+  const queryClient = useQueryClient();
+
+  const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value.replace(/\D/g, "");
+    if (!val) {
+      setDisplayValue("");
+      return;
+    }
+    const numberValue = Number(val) / 100;
+    setDisplayValue(numberValue.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }));
+  };
 
   const { data: entries, isLoading } = useQuery({
     queryKey: ["financial-entries", "all", selectedMonth, selectedYear],
@@ -91,6 +106,9 @@ export function FluxoCaixa() {
               setSelectedYear(y);
             }}
           />
+          <button onClick={() => setModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl hover:shadow-[0_0_20px_rgba(var(--primary),0.3)] transition-all text-sm font-semibold">
+            <Plus className="h-4 w-4" /> Novo Lançamento
+          </button>
         </div>
       </div>
 
@@ -129,6 +147,108 @@ export function FluxoCaixa() {
           </tbody>
         </table>
       </div>
+
+      <SidePanel open={modalOpen} onOpenChange={setModalOpen} title="Novo Lançamento Rápido">
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.currentTarget);
+          const rawValue = formData.get('value') as string;
+          const numericValue = rawValue ? Number(rawValue.replace(/\D/g, '')) / 100 : 0;
+
+          const payload = {
+            description: formData.get('description'),
+            value: numericValue,
+            due_date: formData.get('due_date'),
+            issue_date: formData.get('issue_date'),
+            type: formData.get('type'),
+            expense_type: formData.get('expense_type') || 'fixa',
+            status: formData.get('already_paid') === 'on' ? 'paid' : 'pending'
+          };
+
+          api.post('/financial/entries', payload).then(() => {
+            queryClient.invalidateQueries({ queryKey: ["financial-entries"] });
+            queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+            queryClient.invalidateQueries({ queryKey: ["dre"] });
+            setModalOpen(false);
+            setDisplayValue("");
+            toast.success("Lançamento realizado!");
+          });
+        }} className="space-y-4 pb-10">
+          <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 flex items-start gap-3 mb-4">
+            <Calendar className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Use este atalho para lançar **Saldos Iniciais** ou movimentações rápidas sem sair desta tela.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">Tipo de Movimentação</label>
+            <div className="grid grid-cols-2 gap-2">
+              <label className="flex items-center justify-center gap-2 p-2 border rounded-lg cursor-pointer hover:bg-muted/50 has-[:checked]:bg-success/10 has-[:checked]:border-success has-[:checked]:text-success transition-all">
+                <input type="radio" name="type" value="income" defaultChecked className="hidden" />
+                <span className="text-xs font-bold uppercase">Entrada (+)</span>
+              </label>
+              <label className="flex items-center justify-center gap-2 p-2 border rounded-lg cursor-pointer hover:bg-muted/50 has-[:checked]:bg-danger/10 has-[:checked]:border-danger has-[:checked]:text-danger transition-all">
+                <input type="radio" name="type" value="expense" className="hidden" />
+                <span className="text-xs font-bold uppercase">Saída (-)</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">Descrição</label>
+            <input name="description" placeholder="Ex: Saldo Inicial, Venda Rápida..." required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">Classificação (Para o DRE)</label>
+            <select name="expense_type" className="w-full border rounded-lg px-3 py-2 bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+              <option value="fixa">Despesa Fixa / Operacional</option>
+              <option value="variavel">Custo Variável</option>
+              <option value="imposto">Imposto</option>
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">Data</label>
+              <input name="due_date" type="date" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              <input name="issue_date" type="hidden" defaultValue={new Date().toISOString().split('T')[0]} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">Valor (R$)</label>
+              <input
+                name="value"
+                type="text"
+                value={displayValue}
+                onChange={handleValueChange}
+                required
+                placeholder="R$ 0,00"
+                className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 p-3 bg-primary/5 rounded-lg border border-dashed border-primary/20">
+            <input
+              type="checkbox"
+              name="already_paid"
+              id="already_paid_quick"
+              defaultChecked
+              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <label htmlFor="already_paid_quick" className="text-sm font-semibold text-foreground cursor-pointer">
+              Lançamento já realizado (Pago/Recebido)
+            </label>
+          </div>
+
+          <div className="pt-4 border-t mt-6">
+            <button type="submit" className="w-full py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-all shadow-lg active:scale-95 font-bold text-sm">
+              Confirmar Lançamento
+            </button>
+          </div>
+        </form>
+      </SidePanel>
     </div>
   );
 }
