@@ -73,8 +73,8 @@ const Index = () => {
   const [epiModalOpen, setEpiModalOpen] = useState(false);
   const [epiEmployee, setEpiEmployee] = useState<string | undefined>();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [email, setEmail] = useState("administrador@financeiro.com.br");
-  const [password, setPassword] = useState("@Secur1t1@");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
