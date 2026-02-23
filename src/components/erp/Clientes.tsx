@@ -5,6 +5,7 @@ import { ConfirmModal } from "./ConfirmModal";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { toast } from "sonner";
+import { maskCPFCNPJ, maskPhone } from "@/lib/format";
 
 export function Clientes() {
     const [search, setSearch] = useState("");
@@ -12,6 +13,8 @@ export function Clientes() {
     const [editingClient, setEditingClient] = useState<any>(null);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [clientToDelete, setClientToDelete] = useState<number | null>(null);
+    const [formDocument, setFormDocument] = useState("");
+    const [formPhone, setFormPhone] = useState("");
     const queryClient = useQueryClient();
 
     const { data: clients, isLoading } = useQuery({
@@ -59,12 +62,16 @@ export function Clientes() {
 
     const handleEdit = (client: any) => {
         setEditingClient(client);
+        setFormDocument(client.document || "");
+        setFormPhone(client.phone || "");
         setModalOpen(true);
     };
 
     const closeModal = () => {
         setModalOpen(false);
         setEditingClient(null);
+        setFormDocument("");
+        setFormPhone("");
     };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -121,8 +128,8 @@ export function Clientes() {
                         {filtered.map((row: any) => (
                             <tr key={row.id} className="border-b last:border-b-0 hover:bg-muted/30 transition-colors">
                                 <td className="p-3 font-medium text-foreground">{row.name}</td>
-                                <td className="p-3 text-muted-foreground">{row.document || '-'}</td>
-                                <td className="p-3 text-muted-foreground">{row.phone || '-'}</td>
+                                <td className="p-3 text-muted-foreground">{row.document ? maskCPFCNPJ(row.document) : '-'}</td>
+                                <td className="p-3 text-muted-foreground">{row.phone ? maskPhone(row.phone) : '-'}</td>
                                 <td className="p-3 text-muted-foreground">{row.email || '-'}</td>
                                 <td className="p-3">
                                     <div className="flex justify-end gap-2">
@@ -153,12 +160,24 @@ export function Clientes() {
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-foreground mb-1">CPF ou CNPJ</label>
-                        <input type="text" name="document" defaultValue={editingClient?.document} className="w-full p-2 border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                        <input
+                            type="text"
+                            name="document"
+                            value={formDocument}
+                            onChange={(e) => setFormDocument(maskCPFCNPJ(e.target.value))}
+                            className="w-full p-2 border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-foreground mb-1">Telefone</label>
-                            <input type="text" name="phone" defaultValue={editingClient?.phone} className="w-full p-2 border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                            <input
+                                type="text"
+                                name="phone"
+                                value={formPhone}
+                                onChange={(e) => setFormPhone(maskPhone(e.target.value))}
+                                className="w-full p-2 border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                            />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-foreground mb-1">E-mail</label>

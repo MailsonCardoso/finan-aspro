@@ -6,6 +6,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { toast } from "sonner";
+import { maskCPF } from "@/lib/format";
 import { SidePanel } from "./SidePanel";
 import { ConfirmModal } from "./ConfirmModal";
 
@@ -22,6 +23,7 @@ export function Configuracoes() {
     const [userModalOpen, setUserModalOpen] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState<number | null>(null);
+    const [formCpf, setFormCpf] = useState("");
     const queryClient = useQueryClient();
 
     // Queries
@@ -55,6 +57,7 @@ export function Configuracoes() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["users"] });
             setUserModalOpen(false);
+            setFormCpf("");
             toast.success("Usuário criado com sucesso! A senha padrão é o CPF.");
         },
     });
@@ -92,8 +95,8 @@ export function Configuracoes() {
                 <button
                     onClick={() => setActiveSubTab("empresa")}
                     className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 flex items-center gap-2 whitespace-nowrap ${activeSubTab === "empresa"
-                            ? "border-primary text-primary"
-                            : "border-transparent text-muted-foreground hover:text-foreground"
+                        ? "border-primary text-primary"
+                        : "border-transparent text-muted-foreground hover:text-foreground"
                         }`}
                 >
                     <Building2 className="h-4 w-4" /> Dados da Empresa
@@ -101,8 +104,8 @@ export function Configuracoes() {
                 <button
                     onClick={() => setActiveSubTab("usuarios")}
                     className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 flex items-center gap-2 whitespace-nowrap ${activeSubTab === "usuarios"
-                            ? "border-primary text-primary"
-                            : "border-transparent text-muted-foreground hover:text-foreground"
+                        ? "border-primary text-primary"
+                        : "border-transparent text-muted-foreground hover:text-foreground"
                         }`}
                 >
                     <Users className="h-4 w-4" /> Usuários & Acessos
@@ -110,8 +113,8 @@ export function Configuracoes() {
                 <button
                     onClick={() => setActiveSubTab("temas")}
                     className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 flex items-center gap-2 whitespace-nowrap ${activeSubTab === "temas"
-                            ? "border-primary text-primary"
-                            : "border-transparent text-muted-foreground hover:text-foreground"
+                        ? "border-primary text-primary"
+                        : "border-transparent text-muted-foreground hover:text-foreground"
                         }`}
                 >
                     <Palette className="h-4 w-4" /> Personalização
@@ -225,7 +228,7 @@ export function Configuracoes() {
                                         <tr key={u.id} className="hover:bg-muted/30 transition-colors">
                                             <td className="p-4 font-medium">{u.name}</td>
                                             <td className="p-4 text-muted-foreground">{u.email}</td>
-                                            <td className="p-4 text-muted-foreground">{u.cpf || '---'}</td>
+                                            <td className="p-4 text-muted-foreground">{u.cpf ? maskCPF(u.cpf) : '---'}</td>
                                             <td className="p-4 text-right">
                                                 <button
                                                     onClick={() => {
@@ -323,7 +326,14 @@ export function Configuracoes() {
 
                     <div>
                         <label className="block text-sm font-medium text-foreground mb-1">CPF</label>
-                        <input name="cpf" required placeholder="000.000.000-00" className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none" />
+                        <input
+                            name="cpf"
+                            required
+                            placeholder="000.000.000-00"
+                            value={formCpf}
+                            onChange={(e) => setFormCpf(maskCPF(e.target.value))}
+                            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                        />
                     </div>
 
                     <div className="pt-4 border-t mt-6">

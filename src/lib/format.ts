@@ -11,3 +11,44 @@ export function formatDate(dateStr: string): string {
   const [y, m, d] = parts;
   return `${d}/${m}/${y}`;
 }
+
+export function maskCPF(value: string): string {
+  return value
+    .replace(/\D/g, "")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})/, "$1-$2")
+    .replace(/(-\d{2})\d+?$/, "$1");
+}
+
+export function maskCNPJ(value: string): string {
+  return value
+    .replace(/\D/g, "")
+    .replace(/(\d{2})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1/$2")
+    .replace(/(\d{4})(\d{1,2})/, "$1-$2")
+    .replace(/(-\d{2})\d+?$/, "$1");
+}
+
+export function maskCPFCNPJ(value: string): string {
+  const clean = value.replace(/\D/g, "");
+  if (clean.length <= 11) {
+    return maskCPF(clean);
+  }
+  return maskCNPJ(clean);
+}
+
+export function maskPhone(value: string): string {
+  const clean = value.replace(/\D/g, "");
+  if (clean.length <= 10) {
+    return clean
+      .replace(/(\d{2})(\d)/, "($1) $2")
+      .replace(/(\d{4})(\d)/, "$1-$2")
+      .replace(/(-\d{4})\d+?$/, "$1");
+  }
+  return clean
+    .replace(/(\d{2})(\d)/, "($1) $2")
+    .replace(/(\d{5})(\d)/, "$1-$2")
+    .replace(/(-\d{4})\d+?$/, "$1");
+}
