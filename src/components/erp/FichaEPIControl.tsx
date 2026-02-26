@@ -138,7 +138,7 @@ export function FichaEPIControl({ open, onOpenChange }: { open: boolean; onOpenC
                                             assignments.map((a: any) => (
                                                 <tr key={a.id}>
                                                     <td className="border border-black p-1">{a.epi?.name}</td>
-                                                    <td className="border border-black p-1 text-center font-mono">{a.epi?.ca_number || "-"}</td>
+                                                    <td className="border border-black p-1 text-center font-mono">{a.epi?.description || "-"}</td>
                                                     <td className="border border-black p-1 text-center">{formatDate(a.assignment_date)}</td>
                                                     <td className="border border-black p-1 text-center">01</td>
                                                 </tr>
