@@ -58,6 +58,43 @@ export function FichaEPIControl({ open, onOpenChange }: { open: boolean; onOpenC
 
     return (
         <SidePanel open={open} onOpenChange={onOpenChange} title="Ficha de Controle de EPI">
+            <div className="space-y-6 pb-20 no-print">
+                <div className="p-4 bg-primary/5 border border-primary/10 rounded-lg">
+                    <label className="block text-sm font-medium text-foreground mb-1">Selecione o Funcionário</label>
+                    <select
+                        value={selectedEmployeeId}
+                        onChange={(e) => setSelectedEmployeeId(e.target.value)}
+                        className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                    >
+                        <option value="">Selecione...</option>
+                        {employees?.map((e: any) => (
+                            <option key={e.id} value={e.id}>{e.name}</option>
+                        ))}
+                    </select>
+                    <p className="text-[10px] text-muted-foreground mt-2 italic">
+                        * A ficha trará apenas EPIs ativos entregues no mês vigente ({meses[now.getMonth()]}/{now.getFullYear()}).
+                    </p>
+                </div>
+
+                {selectedEmployeeId && (
+                    <div className="flex justify-end">
+                        <button
+                            onClick={handlePrint}
+                            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors text-sm font-bold shadow-md"
+                        >
+                            <Printer className="h-4 w-4" /> Imprimir Ficha
+                        </button>
+                    </div>
+                )}
+
+                {selectedEmployeeId && assignments?.length === 0 && !loadingAssignments && (
+                    <div className="p-8 text-center border-2 border-dashed rounded-xl">
+                        <FileText className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+                        <p className="text-sm text-muted-foreground">Nenhum EPI ativo encontrado para este funcionário no mês vigente.</p>
+                    </div>
+                )}
+            </div>
+
             {/* Printable Area */}
             {selectedEmployee && (
                 <div className="print-only text-black bg-white font-serif text-[11pt] leading-tight">
