@@ -239,27 +239,45 @@ export function FichaEPIControl({ open, onOpenChange }: { open: boolean; onOpenC
             <style>{`
         @media print {
           @page {
-            size: landscape;
-            margin: 0;
-          }
-          .no-print { display: none !important; }
-          .print-only { display: block !important; }
-          .page-break { page-break-after: always; height: 0; display: block; border: none; }
-          .print-page { 
-            width: 297mm; 
-            height: 210mm; 
-            overflow: hidden;
-            box-sizing: border-box;
+            size: A4 landscape;
+            margin: 10mm;
           }
           body { 
-            margin: 0; 
-            padding: 0; 
+            margin: 0 !important; 
+            padding: 0 !important; 
             background: white !important; 
           }
-          body * { visibility: hidden; }
-          .print-only, .print-only * { visibility: visible; }
+          body * { 
+            visibility: hidden; 
+          }
+          .print-only, .print-only * { 
+            visibility: visible; 
+          }
+          .print-only { 
+            display: block !important;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+          }
+          .page-break { 
+            page-break-after: always;
+            height: 0;
+            display: block;
+            border: none;
+          }
+          .print-page { 
+            width: 100%;
+            box-sizing: border-box;
+            background: white;
+          }
+          .no-print { display: none !important; }
         }
-        .print-only { display: none; }
+        @media screen {
+          .print-only { display: none; }
+        }
       `}</style>
         </SidePanel>
     );
