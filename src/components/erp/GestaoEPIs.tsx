@@ -7,10 +7,13 @@ import { ConfirmModal } from "./ConfirmModal";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { toast } from "sonner";
+import { FichaEPIControl } from "./FichaEPIControl";
+import { FileText } from "lucide-react";
 
 export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { modalOpen: boolean; onCloseModal: () => void; preselectedEmployee?: string }) {
   const [internalModal, setInternalModal] = useState(false);
   const [returnModalOpen, setReturnModalOpen] = useState(false);
+  const [fichaModalOpen, setFichaModalOpen] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
   const [search, setSearch] = useState("");
 
@@ -84,9 +87,17 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-foreground">Gestão de EPIs</h2>
-        <button onClick={() => setInternalModal(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors text-sm font-medium">
-          <Plus className="h-4 w-4" /> Vincular EPI
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setFichaModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-muted transition-colors text-sm font-medium"
+          >
+            <FileText className="h-4 w-4" /> Ficha de Controle
+          </button>
+          <button onClick={() => setInternalModal(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors text-sm font-medium">
+            <Plus className="h-4 w-4" /> Vincular EPI
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -232,6 +243,8 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
           </div>
         </form>
       </SidePanel>
+
+      <FichaEPIControl open={fichaModalOpen} onOpenChange={setFichaModalOpen} />
     </div>
   );
 }

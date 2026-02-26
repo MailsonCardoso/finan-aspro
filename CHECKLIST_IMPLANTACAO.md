@@ -6,7 +6,6 @@ Este guia detalha o "Caminho de Ouro" para configurar e utilizar o sistema, gara
 
 ## 🏁 FASE 1: O Alicerce (Primeiros 15 minutos)
 *O objetivo aqui é dar identidade ao sistema e preparar os cadastros que serão usados em tudo.*
-
 1.  **Tela: Configurações**
     - **O que fazer:** Preencha o Nome da Empresa, CNPJ e Endereço.
     - **Resultado:** Seus relatórios e a interface agora levam sua marca corporativa.
