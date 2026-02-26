@@ -130,7 +130,7 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
             {filtered.map((row: any) => (
               <tr key={row.id} className={`border-b last:border-b-0 hover:bg-muted/30 transition-colors ${row.status === 'returned' ? 'opacity-60 bg-muted/10' : ''}`}>
                 <td className="p-3 font-medium text-foreground">{row.employee?.name}</td>
-                <td className="p-3 text-muted-foreground">{row.epi?.name}</td>
+                <td className="p-3 text-muted-foreground">{row.epi?.name} {row.epi?.ca_number ? <span className="text-xs text-muted-foreground/70 ml-1">(CA: {row.epi.ca_number})</span> : ''}</td>
                 <td className="p-3 text-muted-foreground">{formatDate(row.assignment_date)}</td>
                 <td className="p-3 text-muted-foreground text-xs italic">
                   {row.status === 'returned'
@@ -185,7 +185,7 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
             <label className="block text-sm font-medium text-foreground mb-1">Tipo de EPI</label>
             <select name="epi_id" required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
               <option value="" disabled selected>Selecione o EPI</option>
-              {epis?.map((e: any) => <option key={e.id} value={e.id}>{e.name}</option>)}
+              {epis?.map((e: any) => <option key={e.id} value={e.id}>{e.name} {e.ca_number ? `(CA: ${e.ca_number})` : ''}</option>)}
             </select>
           </div>
           <div className="grid grid-cols-2 gap-4">

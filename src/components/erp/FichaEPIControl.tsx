@@ -274,6 +274,8 @@ export function FichaEPIControl({ open, onOpenChange }: { open: boolean; onOpenC
           .print-only { display: none; }
         }
       `}</style>
-                </SidePanel>
-            );
+                </div>
+            )}
+        </SidePanel>
+    );
 }
