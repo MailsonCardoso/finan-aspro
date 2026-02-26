@@ -240,41 +240,56 @@ export function FichaEPIControl({ open, onOpenChange }: { open: boolean; onOpenC
         @media print {
           @page {
             size: A4 landscape;
-            margin: 10mm;
+            margin: 5mm;
           }
-          body { 
+          
+          body, html { 
             margin: 0 !important; 
             padding: 0 !important; 
             background: white !important; 
           }
+          
           body * { 
             visibility: hidden; 
           }
+
+          /* Remove transforms que podem 'prender' o position: fixed dentro do SidePanel */
+          div {
+            transform: none !important;
+          }
+          
           .print-only, .print-only * { 
             visibility: visible; 
           }
+          
           .print-only { 
             display: block !important;
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100vw;
+            position: fixed !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 290mm !important;
             margin: 0;
             padding: 0;
+            z-index: 999999 !important;
           }
+          
           .page-break { 
             page-break-after: always;
             height: 0;
             display: block;
             border: none;
           }
+          
           .print-page { 
             width: 100%;
             box-sizing: border-box;
             background: white;
+            padding: 10mm;
           }
+          
           .no-print { display: none !important; }
         }
+        
         @media screen {
           .print-only { display: none; }
         }
