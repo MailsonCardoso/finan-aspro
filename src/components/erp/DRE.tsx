@@ -221,47 +221,24 @@ export function DRE() {
         @media print {
           @page { 
             size: A4 portrait; 
-            margin: 0; 
+            margin: 10mm; 
           }
           
-          /* Hide EVERYTHING */
-          body > * { 
-            display: none !important; 
-          }
-
-          /* Force display only the printable content */
-          body > div[data-state], 
-          .lg\\:ml-64,
-          main,
-          .animate-fade-in {
-            display: block !important;
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
+          html, body {
             height: auto !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            transform: none !important;
-          }
-
-          /* Target the DRE container specifically */
-          .space-y-8 {
-            display: block !important;
-            width: 210mm !important;
-            height: 297mm !important;
-            padding: 10mm !important;
-            box-sizing: border-box !important;
+            overflow: visible !important;
             background: white !important;
-            overflow: hidden !important;
-            position: fixed !important;
-            top: 0;
-            left: 0;
-            z-index: 99999;
           }
 
           .no-print, button, select, [role="dialog"], .SidePanel, .toast, header, aside, .lucide { 
             display: none !important; 
+          }
+          
+          .lg\\:ml-64 { margin-left: 0 !important; }
+          main { 
+            padding: 0 !important; 
+            margin: 0 !important;
+            display: block !important;
           }
           
           .bg-card, .bg-sidebar { 
@@ -269,19 +246,29 @@ export function DRE() {
             background: transparent !important;
             box-shadow: none !important;
             margin-bottom: 8px !important;
-            padding: 10px !important;
+            padding: 8px !important;
           }
 
-          /* Extreme Table Compaction */
-          table { margin-top: 5px !important; }
-          th, td { padding: 4px 8px !important; border-bottom: 1px solid #eee !important; }
+          /* Compact Table */
+          table { 
+            width: 100% !important; 
+            border-collapse: collapse !important; 
+            margin-top: 5px !important;
+          }
+          
+          th, td { 
+            border-bottom: 1px solid #eee !important; 
+            padding: 4px 8px !important; 
+          }
+          
+          tr { break-inside: avoid; }
+          
           .py-6 { padding-top: 4px !important; padding-bottom: 4px !important; }
           
           /* Font resets */
-          .text-3xl { font-size: 16pt !important; margin: 0 !important; }
+          .text-3xl { font-size: 16pt !important; }
           .text-xl { font-size: 11pt !important; }
           .text-lg { font-size: 9pt !important; }
-          h2, h3, h4 { margin-bottom: 4px !important; }
           
           /* Force grid items to stack tightly */
           .grid { display: block !important; }
@@ -294,12 +281,12 @@ export function DRE() {
           .text-primary { color: black !important; }
           .text-success { color: #15803d !important; }
           .text-danger { color: #b91c1c !important; }
-          
-          /* Hide Analysis text if space is tight */
-          .bg-primary\\/5 { margin-top: 5px !important; padding: 10px !important; }
+          .text-muted-foreground { color: #666 !important; }
+
+          /* Compact performance analysis */
+          .bg-primary\\/5 { padding: 8px !important; margin-top: 5px !important; }
         }
       `}</style>
     </div>
   );
 }
-
