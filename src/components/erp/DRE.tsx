@@ -221,7 +221,7 @@ export function DRE() {
         @media print {
           @page { 
             size: A4 portrait; 
-            margin: 10mm; 
+            margin: 8mm; 
           }
           
           html, body {
@@ -240,13 +240,13 @@ export function DRE() {
             padding: 0 !important; 
             margin: 0 !important;
             display: block !important;
-            float: none !important;
           }
           
           .bg-card { 
             border: none !important; 
             background: transparent !important;
             box-shadow: none !important; 
+            margin-bottom: 10px !important;
           }
           
           body { 
@@ -256,30 +256,40 @@ export function DRE() {
           
           .animate-fade-in { animation: none !important; }
           
+          /* Compact Table */
           table { 
             width: 100% !important; 
             border-collapse: collapse !important; 
-            margin-top: 20px;
-            break-inside: auto;
+            margin-top: 10px !important;
           }
           
-          tr { break-inside: avoid; break-after: auto; }
-
           th, td { 
             border-bottom: 1px solid #ddd !important; 
-            padding: 12px 8px !important;
+            padding: 8px 4px !important; /* Compact padding */
           }
           
-          th { background-color: #f9f9f9 !important; -webkit-print-color-adjust: exact; }
+          tr { break-inside: avoid; }
           
-          .lg\\:col-span-8, .lg\\:col-span-4 { width: 100% !important; }
+          .text-lg { font-size: 11pt !important; }
+          .text-xl { font-size: 13pt !important; }
+          .text-3xl { font-size: 18pt !important; }
+          .py-6 { padding-top: 10px !important; padding-bottom: 10px !important; }
+          
+          /* Combine columns for print */
+          .lg\\:col-span-8, .lg\\:col-span-4 { 
+            width: 100% !important; 
+            float: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
           .grid { display: block !important; }
           
           .bg-sidebar { 
             background: #f9f9f9 !important; 
             border: 1px solid #ddd !important; 
             color: black !important;
-            padding: 20px !important;
+            padding: 15px !important;
+            margin-top: 15px !important;
             break-inside: avoid;
           }
           
@@ -287,6 +297,9 @@ export function DRE() {
           .text-success { color: #15803d !important; }
           .text-danger { color: #b91c1c !important; }
           .text-muted-foreground { color: #666 !important; }
+          
+          /* Hide decorative icons in print to save space */
+          .lucide { display: none !important; }
         }
       `}</style>
     </div>
