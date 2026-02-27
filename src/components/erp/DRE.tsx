@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
-import { Loader2, AlertCircle, TrendingUp, BarChart3, PieChart, FileText } from "lucide-react";
+import { Loader2, AlertCircle, TrendingUp, BarChart3, PieChart, FileText, Printer } from "lucide-react";
 import { MonthYearPicker } from "./MonthYearPicker";
 
 interface DREData {
@@ -78,14 +78,22 @@ export function DRE() {
             <h2 className="text-3xl font-black text-foreground tracking-tight">DRE Corporativo</h2>
             <p className="text-sm text-muted-foreground">Demonstrativo do Resultado do Exercício consolidado.</p>
           </div>
-          <MonthYearPicker
-            month={selectedMonth}
-            year={selectedYear}
-            onChange={(m, y) => {
-              setSelectedMonth(m);
-              setSelectedYear(y);
-            }}
-          />
+          <div className="flex items-center gap-2 no-print">
+            <button
+              onClick={() => window.print()}
+              className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-xl hover:bg-muted transition-all text-sm font-semibold"
+            >
+              <Printer className="h-4 w-4" /> Imprimir DRE
+            </button>
+            <MonthYearPicker
+              month={selectedMonth}
+              year={selectedYear}
+              onChange={(m, y) => {
+                setSelectedMonth(m);
+                setSelectedYear(y);
+              }}
+            />
+          </div>
         </div>
 
         <div className="flex items-center gap-4 bg-card border px-5 py-3 rounded-2xl shadow-sm">
@@ -208,6 +216,24 @@ export function DRE() {
           </div>
         </div>
       </div>
+
+      <style>{`
+        @media print {
+          @page { size: A4 portrait; margin: 15mm; }
+          .no-print, button, select, .SidePanel, .toast { display: none !important; }
+          .bg-card { border: 1px solid #000 !important; box-shadow: none !important; }
+          .bg-sidebar { background: #f9f9f9 !important; border: 1px solid #000 !important; color: black !important; }
+          .text-primary-foreground { color: black !important; }
+          .text-sidebar-foreground { color: black !important; }
+          body { background: white !important; }
+          .animate-fade-in { animation: none !important; }
+          table { width: 100% !important; border-collapse: collapse !important; }
+          th, td { border-bottom: 1px solid #eee !important; }
+          .lg\\:col-span-8 { width: 100% !important; }
+          .lg\\:col-span-4 { width: 100% !important; margin-top: 20px; }
+          .grid { display: block !important; }
+        }
+      `}</style>
     </div>
   );
 }

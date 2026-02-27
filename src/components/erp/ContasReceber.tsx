@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Calendar, Plus, Loader2 } from "lucide-react";
+import { Search, Calendar, Plus, Loader2, Printer } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { SidePanel } from "./SidePanel";
@@ -108,7 +108,13 @@ export function ContasReceber() {
               setSelectedYear(y);
             }}
           />
-          <button onClick={() => setModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl hover:shadow-[0_0_20px_rgba(var(--primary),0.3)] transition-all text-sm font-semibold">
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-xl hover:bg-muted transition-all text-sm font-semibold no-print"
+          >
+            <Printer className="h-4 w-4" /> Imprimir
+          </button>
+          <button onClick={() => setModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl hover:shadow-[0_0_20px_rgba(var(--primary),0.3)] transition-all text-sm font-semibold no-print">
             <Plus className="h-4 w-4" /> Novo Recebimento
           </button>
         </div>
@@ -299,7 +305,19 @@ export function ContasReceber() {
           </div>
         </form>
       </SidePanel>
+
+      <style>{`
+        @media print {
+          @page { size: A4 landscape; margin: 10mm; }
+          .no-print, button, select, .SidePanel, .toast { display: none !important; }
+          .bg-card { border: none !important; box-shadow: none !important; }
+          body { background: white !important; }
+          .animate-fade-in { animation: none !important; }
+          table { width: 100% !important; border-collapse: collapse !important; }
+          th, td { border: 1px solid #eee !important; }
+          .text-primary { color: black !important; }
+        }
+      `}</style>
     </div>
   );
 }
-

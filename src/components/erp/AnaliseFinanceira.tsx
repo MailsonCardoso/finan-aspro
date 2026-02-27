@@ -12,7 +12,8 @@ import {
     DollarSign,
     PieChart as PieChartIcon,
     ArrowUpRight,
-    ArrowDownRight
+    ArrowDownRight,
+    Printer
 } from "lucide-react";
 import { MonthYearPicker } from "./MonthYearPicker";
 
@@ -68,14 +69,22 @@ export function AnaliseFinanceira() {
                     <h2 className="text-3xl font-black text-foreground tracking-tight">Análise Financeira Consolidada</h2>
                     <p className="text-sm text-muted-foreground">Consolidado por Contas Bancárias e Formas de Pagamento.</p>
                 </div>
-                <MonthYearPicker
-                    month={selectedMonth}
-                    year={selectedYear}
-                    onChange={(m, y) => {
-                        setSelectedMonth(m);
-                        setSelectedYear(y);
-                    }}
-                />
+                <div className="flex items-center gap-2 no-print">
+                    <button
+                        onClick={() => window.print()}
+                        className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-xl hover:bg-muted transition-all text-sm font-semibold"
+                    >
+                        <Printer className="h-4 w-4" /> Imprimir Análise
+                    </button>
+                    <MonthYearPicker
+                        month={selectedMonth}
+                        year={selectedYear}
+                        onChange={(m, y) => {
+                            setSelectedMonth(m);
+                            setSelectedYear(y);
+                        }}
+                    />
+                </div>
             </div>
 
             {/* Resumo Geral */}
@@ -186,6 +195,24 @@ export function AnaliseFinanceira() {
                     </div>
                 </div>
             </div>
+
+            <style>{`
+                @media print {
+                    @page { size: A4 portrait; margin: 10mm; }
+                    .no-print, button, select, .SidePanel, .toast { display: none !important; }
+                    .bg-card { border: 1px solid #000 !important; box-shadow: none !important; }
+                    .bg-primary { border: 1px solid #000 !important; color: black !important; background: #eee !important; box-shadow: none !important; }
+                    .text-white { color: black !important; }
+                    body { background: white !important; }
+                    .animate-fade-in { animation: none !important; }
+                    table { width: 100% !important; border-collapse: collapse !important; }
+                    th, td { border: 1px solid #eee !important; }
+                    .grid { display: block !important; }
+                    .grid-cols-1, .grid-cols-2, .lg\\:grid-cols-2, .md\\:grid-cols-3 { display: block !important; }
+                    .gap-6, .gap-8 { margin-bottom: 20px !important; }
+                    div { break-inside: avoid; }
+                }
+            `}</style>
         </div>
     );
 }
