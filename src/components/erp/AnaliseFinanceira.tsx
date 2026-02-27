@@ -200,20 +200,33 @@ export function AnaliseFinanceira() {
         @media print {
           @page { 
             size: A4 portrait; 
-            margin: 15mm; 
+            margin: 10mm; 
           }
           
+          html, body {
+            height: auto !important;
+            overflow: visible !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+
           .no-print, button, select, [role="dialog"], .SidePanel, .toast, header, aside { 
             display: none !important; 
           }
           
           .lg\\:ml-64 { margin-left: 0 !important; }
-          main { padding: 0 !important; }
+          main { 
+            padding: 0 !important; 
+            margin: 0 !important;
+            display: block !important;
+            float: none !important;
+          }
           
           .bg-card { 
             border: none !important; 
             background: transparent !important;
             box-shadow: none !important; 
+            break-inside: avoid;
           }
           
           body { 

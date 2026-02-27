@@ -389,20 +389,33 @@ For more information, see https://radix-ui.com/primitives/docs/components/${t.do
         @media print {
           @page { 
             size: A4 landscape; 
-            margin: 15mm; 
+            margin: 10mm; 
           }
           
+          html, body {
+            height: auto !important;
+            overflow: visible !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+
           .no-print, button, select, [role="dialog"], .SidePanel, .toast, header, aside { 
             display: none !important; 
           }
           
           .lg\\:ml-64 { margin-left: 0 !important; }
-          main { padding: 0 !important; }
+          main { 
+            padding: 0 !important; 
+            margin: 0 !important;
+            display: block !important;
+            float: none !important;
+          }
           
           .bg-card { 
             border: none !important; 
             background: transparent !important;
             box-shadow: none !important; 
+            break-inside: avoid;
           }
           
           body { 
@@ -416,7 +429,10 @@ For more information, see https://radix-ui.com/primitives/docs/components/${t.do
             width: 100% !important; 
             border-collapse: collapse !important; 
             margin-top: 20px;
+            break-inside: auto;
           }
+
+          tr { break-inside: avoid; break-after: auto; }
           
           th, td { 
             border: 1px solid #ddd !important; 
@@ -434,20 +450,33 @@ For more information, see https://radix-ui.com/primitives/docs/components/${t.do
         @media print {
           @page { 
             size: A4 landscape; 
-            margin: 15mm; 
+            margin: 10mm; 
           }
           
+          html, body {
+            height: auto !important;
+            overflow: visible !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+
           .no-print, button, select, input, [role="dialog"], .SidePanel, .toast, header, aside { 
             display: none !important; 
           }
           
           .lg\\:ml-64 { margin-left: 0 !important; }
-          main { padding: 0 !important; }
+          main { 
+            padding: 0 !important; 
+            margin: 0 !important;
+            display: block !important;
+            float: none !important;
+          }
           
           .bg-card { 
             border: none !important; 
             background: transparent !important;
             box-shadow: none !important; 
+            break-inside: avoid;
           }
           
           body { 
@@ -461,7 +490,10 @@ For more information, see https://radix-ui.com/primitives/docs/components/${t.do
             width: 100% !important; 
             border-collapse: collapse !important; 
             margin-top: 20px;
+            break-inside: auto;
           }
+          
+          tr { break-inside: avoid; break-after: auto; }
           
           th, td { 
             border: 1px solid #ddd !important; 
@@ -479,20 +511,33 @@ For more information, see https://radix-ui.com/primitives/docs/components/${t.do
         @media print {
           @page { 
             size: A4 landscape; 
-            margin: 15mm; 
+            margin: 10mm; 
           }
           
+          html, body {
+            height: auto !important;
+            overflow: visible !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+
           .no-print, button, select, [role="dialog"], .SidePanel, .toast, header, aside { 
             display: none !important; 
           }
           
           .lg\\:ml-64 { margin-left: 0 !important; }
-          main { padding: 0 !important; }
+          main { 
+            padding: 0 !important; 
+            margin: 0 !important;
+            display: block !important;
+            float: none !important;
+          }
           
           .bg-card { 
             border: none !important; 
             background: transparent !important;
             box-shadow: none !important; 
+            break-inside: avoid;
           }
           
           body { 
@@ -506,7 +551,10 @@ For more information, see https://radix-ui.com/primitives/docs/components/${t.do
             width: 100% !important; 
             border-collapse: collapse !important; 
             margin-top: 20px;
+            break-inside: auto;
           }
+
+          tr { break-inside: avoid; break-after: auto; }
           
           th, td { 
             border: 1px solid #ddd !important; 
@@ -524,15 +572,27 @@ For more information, see https://radix-ui.com/primitives/docs/components/${t.do
         @media print {
           @page { 
             size: A4 portrait; 
-            margin: 15mm; 
+            margin: 10mm; 
           }
           
+          html, body {
+            height: auto !important;
+            overflow: visible !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+
           .no-print, button, select, [role="dialog"], .SidePanel, .toast, header, aside { 
             display: none !important; 
           }
           
           .lg\\:ml-64 { margin-left: 0 !important; }
-          main { padding: 0 !important; }
+          main { 
+            padding: 0 !important; 
+            margin: 0 !important;
+            display: block !important;
+            float: none !important;
+          }
           
           .bg-card { 
             border: none !important; 
@@ -551,8 +611,11 @@ For more information, see https://radix-ui.com/primitives/docs/components/${t.do
             width: 100% !important; 
             border-collapse: collapse !important; 
             margin-top: 20px;
+            break-inside: auto;
           }
           
+          tr { break-inside: avoid; break-after: auto; }
+
           th, td { 
             border-bottom: 1px solid #ddd !important; 
             padding: 12px 8px !important;
@@ -568,6 +631,7 @@ For more information, see https://radix-ui.com/primitives/docs/components/${t.do
             border: 1px solid #ddd !important; 
             color: black !important;
             padding: 20px !important;
+            break-inside: avoid;
           }
           
           .text-primary { color: black !important; }
@@ -650,20 +714,33 @@ For more information, see https://radix-ui.com/primitives/docs/components/alert-
         @media print {
           @page { 
             size: A4 portrait; 
-            margin: 15mm; 
+            margin: 10mm; 
           }
           
+          html, body {
+            height: auto !important;
+            overflow: visible !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+
           .no-print, button, select, [role="dialog"], .SidePanel, .toast, header, aside { 
             display: none !important; 
           }
           
           .lg\\:ml-64 { margin-left: 0 !important; }
-          main { padding: 0 !important; }
+          main { 
+            padding: 0 !important; 
+            margin: 0 !important;
+            display: block !important;
+            float: none !important;
+          }
           
           .bg-card { 
             border: none !important; 
             background: transparent !important;
             box-shadow: none !important; 
+            break-inside: avoid;
           }
           
           body { 
