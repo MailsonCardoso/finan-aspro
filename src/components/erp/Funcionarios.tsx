@@ -97,7 +97,7 @@ export function Funcionarios({ onOpenEPI }: { onOpenEPI: (employeeName?: string)
           <thead>
             <tr className="border-b bg-muted/50">
               <th className="text-left p-3 font-medium text-muted-foreground">Nome</th>
-              <th className="text-left p-3 font-medium text-muted-foreground">Cargo / Departamento</th>
+              <th className="text-left p-3 font-medium text-muted-foreground">Cargo</th>
               <th className="text-left p-3 font-medium text-muted-foreground">Data Admissão</th>
               <th className="text-left p-3 font-medium text-muted-foreground">Estado</th>
               <th className="text-right p-3 font-medium text-muted-foreground">Ações</th>
@@ -114,7 +114,7 @@ export function Funcionarios({ onOpenEPI }: { onOpenEPI: (employeeName?: string)
                     <span className="font-medium text-foreground">{emp.name}</span>
                   </div>
                 </td>
-                <td className="p-3 text-muted-foreground">{emp.role} <span className="text-xs">• {emp.department}</span></td>
+                <td className="p-3 text-muted-foreground">{emp.role}</td>
                 <td className="p-3 text-muted-foreground">{formatDate(emp.admission_date)}</td>
                 <td className="p-3"><StatusBadge status={emp.status === 'active' ? 'Ativo' : 'Inativo'} /></td>
                 <td className="p-3 text-right">
@@ -143,7 +143,6 @@ export function Funcionarios({ onOpenEPI }: { onOpenEPI: (employeeName?: string)
           const payload = {
             name: formData.get('name'),
             role: formData.get('role'),
-            department: formData.get('department'),
             admission_date: formData.get('admission_date'),
             status: editingEmployee?.status || 'active'
           };
@@ -168,13 +167,9 @@ export function Funcionarios({ onOpenEPI }: { onOpenEPI: (employeeName?: string)
               <input name="role" defaultValue={editingEmployee?.role} required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Departamento</label>
-              <input name="department" defaultValue={editingEmployee?.department} required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              <label className="block text-sm font-medium text-foreground mb-1">Data de Admissão</label>
+              <input name="admission_date" type="date" defaultValue={editingEmployee?.admission_date ? editingEmployee.admission_date.split('T')[0] : ""} required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
             </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Data de Admissão</label>
-            <input name="admission_date" type="date" defaultValue={editingEmployee?.admission_date ? editingEmployee.admission_date.split('T')[0] : ""} required className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
           </div>
           <div className="pt-4 border-t mt-6">
             <button type="submit" className="w-full py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-all shadow-lg active:scale-95 font-bold text-sm">
