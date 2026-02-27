@@ -214,6 +214,7 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
         </div>
         <form onSubmit={(e) => {
           e.preventDefault();
+          const todayLocal = new Date().toLocaleDateString('en-CA');
           const formData = new FormData(e.currentTarget);
           const returnDateStr = formData.get('return_date') as string;
           const returnDate = new Date(returnDateStr + 'T00:00:00');
@@ -237,8 +238,8 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
               name="return_date"
               type="date"
               required
-              defaultValue={new Date().toISOString().split('T')[0]}
-              max={new Date().toISOString().split('T')[0]}
+              defaultValue={new Date().toLocaleDateString('en-CA')}
+              max={new Date().toLocaleDateString('en-CA')}
               className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>

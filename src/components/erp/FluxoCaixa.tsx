@@ -272,8 +272,8 @@ export function FluxoCaixa() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-foreground mb-1">Data</label>
-              <input name="due_date" type="date" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
-              <input name="issue_date" type="hidden" defaultValue={new Date().toISOString().split('T')[0]} />
+              <input name="due_date" type="date" required defaultValue={new Date().toLocaleDateString('en-CA')} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              <input name="issue_date" type="hidden" defaultValue={new Date().toLocaleDateString('en-CA')} />
             </div>
             <div>
               <label className="block text-sm font-medium text-foreground mb-1">Valor (R$)</label>
