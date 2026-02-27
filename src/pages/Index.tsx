@@ -274,7 +274,7 @@ const Index = () => {
   return (
     <div className="flex min-h-screen bg-background">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-64 bg-sidebar text-sidebar-foreground fixed inset-y-0 left-0 z-30">
+      <aside className="hidden lg:flex flex-col w-64 bg-sidebar text-sidebar-foreground fixed inset-y-0 left-0 z-30 no-print">
         {/* Logo */}
         <div className="p-6 border-b border-sidebar-muted">
           <div className="flex items-center gap-3">
@@ -332,7 +332,7 @@ const Index = () => {
       </aside>
 
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 inset-x-0 z-40 bg-sidebar h-14 flex items-center justify-between px-4">
+      <div className="lg:hidden fixed top-0 inset-x-0 z-40 bg-sidebar h-14 flex items-center justify-between px-4 no-print">
         <div className="flex items-center gap-2">
           <div className="h-7 w-7 rounded-md bg-primary flex items-center justify-center">
             <TrendingUp className="h-4 w-4 text-primary-foreground" />
@@ -346,7 +346,7 @@ const Index = () => {
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-x-0 top-14 z-30 bg-sidebar border-t border-sidebar-muted shadow-xl max-h-[70vh] overflow-y-auto">
+        <div className="lg:hidden fixed inset-x-0 top-14 z-30 bg-sidebar border-t border-sidebar-muted shadow-xl max-h-[70vh] overflow-y-auto no-print">
           <nav className="p-3 space-y-4">
             {navGroups.map(group => (
               <div key={group.label}>
@@ -373,7 +373,7 @@ const Index = () => {
       {/* Main Content Area */}
       <div className="flex-1 lg:ml-64">
         {/* Top Header */}
-        <header className="sticky top-0 z-20 bg-card border-b h-14 lg:h-16 flex items-center justify-between px-4 lg:px-8 mt-14 lg:mt-0">
+        <header className="sticky top-0 z-20 bg-card border-b h-14 lg:h-16 flex items-center justify-between px-4 lg:px-8 mt-14 lg:mt-0 no-print">
           <div className="flex items-center gap-4">
             <h2 className="text-lg font-semibold text-foreground hidden sm:block">{tabTitles[activeTab]}</h2>
 

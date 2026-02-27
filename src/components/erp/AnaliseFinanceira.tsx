@@ -197,22 +197,44 @@ export function AnaliseFinanceira() {
             </div>
 
             <style>{`
-                @media print {
-                    @page { size: A4 portrait; margin: 10mm; }
-                    .no-print, button, select, .SidePanel, .toast { display: none !important; }
-                    .bg-card { border: 1px solid #000 !important; box-shadow: none !important; }
-                    .bg-primary { border: 1px solid #000 !important; color: black !important; background: #eee !important; box-shadow: none !important; }
-                    .text-white { color: black !important; }
-                    body { background: white !important; }
-                    .animate-fade-in { animation: none !important; }
-                    table { width: 100% !important; border-collapse: collapse !important; }
-                    th, td { border: 1px solid #eee !important; }
-                    .grid { display: block !important; }
-                    .grid-cols-1, .grid-cols-2, .lg\\:grid-cols-2, .md\\:grid-cols-3 { display: block !important; }
-                    .gap-6, .gap-8 { margin-bottom: 20px !important; }
-                    div { break-inside: avoid; }
-                }
-            `}</style>
+        @media print {
+          @page { 
+            size: A4 portrait; 
+            margin: 15mm; 
+          }
+          
+          .no-print, button, select, [role="dialog"], .SidePanel, .toast, header, aside { 
+            display: none !important; 
+          }
+          
+          .lg\\:ml-64 { margin-left: 0 !important; }
+          main { padding: 0 !important; }
+          
+          .bg-card { 
+            border: none !important; 
+            background: transparent !important;
+            box-shadow: none !important; 
+          }
+          
+          body { 
+            background: white !important; 
+            color: black !important;
+          }
+          
+          .animate-fade-in { animation: none !important; }
+          .grid { display: block !important; }
+          .lg\\:col-span-2, .lg\\:col-span-1 { width: 100% !important; margin-bottom: 20px; }
+          
+          .text-primary { color: black !important; }
+          .text-success { color: #15803d !important; }
+          .text-danger { color: #b91c1c !important; }
+          .text-muted-foreground { color: #666 !important; }
+
+          .grid-cols-1, .grid-cols-2, .lg\\:grid-cols-2, .md\\:grid-cols-3 { display: block !important; }
+          .gap-6, .gap-8 { margin-bottom: 20px !important; }
+          div { break-inside: avoid; }
+        }
+      `}</style>
         </div>
     );
 }

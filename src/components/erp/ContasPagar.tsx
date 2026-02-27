@@ -149,8 +149,8 @@ export function ContasPagar() {
               <th className="text-left p-3 font-medium text-muted-foreground">Conta / Forma Pag.</th>
               <th className="text-left p-3 font-medium text-muted-foreground">Emissão / Vencimento</th>
               <th className="text-left p-3 font-medium text-muted-foreground">Estado</th>
-              <th className="text-right p-3 font-medium text-muted-foreground">Valor</th>
-              <th className="text-right p-3 font-medium text-muted-foreground">Ações</th>
+              <th className="text-right p-3 font-medium text-muted-foreground w-28">Valor</th>
+              <th className="text-right p-3 font-medium text-muted-foreground no-print">Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -175,7 +175,7 @@ export function ContasPagar() {
                 </td>
                 <td className="p-3"><StatusBadge status={row.computedStatus} /></td>
                 <td className="p-3 text-right font-medium text-foreground">{formatCurrency(Number(row.value))}</td>
-                <td className="p-3 text-right">
+                <td className="p-3 text-right no-print">
                   {row.status !== "paid" && (
                     <button
                       onClick={() => handleConfirmPayment(row.id)}
@@ -317,14 +317,48 @@ export function ContasPagar() {
 
       <style>{`
         @media print {
-          @page { size: A4 landscape; margin: 10mm; }
-          .no-print, button, select, input, .SidePanel, .toast { display: none !important; }
-          .bg-card { border: none !important; shadow: none !important; }
-          body { background: white !important; }
+          @page { 
+            size: A4 landscape; 
+            margin: 15mm; 
+          }
+          
+          .no-print, button, select, input, [role="dialog"], .SidePanel, .toast, header, aside { 
+            display: none !important; 
+          }
+          
+          .lg\\:ml-64 { margin-left: 0 !important; }
+          main { padding: 0 !important; }
+          
+          .bg-card { 
+            border: none !important; 
+            background: transparent !important;
+            box-shadow: none !important; 
+          }
+          
+          body { 
+            background: white !important; 
+            color: black !important;
+          }
+          
           .animate-fade-in { animation: none !important; }
-          table { width: 100% !important; border-collapse: collapse !important; }
-          th, td { border: 1px solid #eee !important; }
+          
+          table { 
+            width: 100% !important; 
+            border-collapse: collapse !important; 
+            margin-top: 20px;
+          }
+          
+          th, td { 
+            border: 1px solid #ddd !important; 
+            padding: 8px !important;
+          }
+          
+          th { background-color: #f9f9f9 !important; -webkit-print-color-adjust: exact; }
+          
           .text-primary { color: black !important; }
+          .text-success { color: #15803d !important; }
+          .text-danger { color: #b91c1c !important; }
+          .text-muted-foreground { color: #666 !important; }
         }
       `}</style>
     </div >

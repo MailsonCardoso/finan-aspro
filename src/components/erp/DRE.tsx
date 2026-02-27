@@ -219,19 +219,58 @@ export function DRE() {
 
       <style>{`
         @media print {
-          @page { size: A4 portrait; margin: 15mm; }
-          .no-print, button, select, .SidePanel, .toast { display: none !important; }
-          .bg-card { border: 1px solid #000 !important; box-shadow: none !important; }
-          .bg-sidebar { background: #f9f9f9 !important; border: 1px solid #000 !important; color: black !important; }
-          .text-primary-foreground { color: black !important; }
-          .text-sidebar-foreground { color: black !important; }
-          body { background: white !important; }
+          @page { 
+            size: A4 portrait; 
+            margin: 15mm; 
+          }
+          
+          .no-print, button, select, [role="dialog"], .SidePanel, .toast, header, aside { 
+            display: none !important; 
+          }
+          
+          .lg\\:ml-64 { margin-left: 0 !important; }
+          main { padding: 0 !important; }
+          
+          .bg-card { 
+            border: none !important; 
+            background: transparent !important;
+            box-shadow: none !important; 
+          }
+          
+          body { 
+            background: white !important; 
+            color: black !important;
+          }
+          
           .animate-fade-in { animation: none !important; }
-          table { width: 100% !important; border-collapse: collapse !important; }
-          th, td { border-bottom: 1px solid #eee !important; }
-          .lg\\:col-span-8 { width: 100% !important; }
-          .lg\\:col-span-4 { width: 100% !important; margin-top: 20px; }
+          
+          table { 
+            width: 100% !important; 
+            border-collapse: collapse !important; 
+            margin-top: 20px;
+          }
+          
+          th, td { 
+            border-bottom: 1px solid #ddd !important; 
+            padding: 12px 8px !important;
+          }
+          
+          th { background-color: #f9f9f9 !important; -webkit-print-color-adjust: exact; }
+          
+          .lg\\:col-span-8, .lg\\:col-span-4 { width: 100% !important; }
           .grid { display: block !important; }
+          
+          .bg-sidebar { 
+            background: #f9f9f9 !important; 
+            border: 1px solid #ddd !important; 
+            color: black !important;
+            padding: 20px !important;
+          }
+          
+          .text-primary { color: black !important; }
+          .text-success { color: #15803d !important; }
+          .text-danger { color: #b91c1c !important; }
+          .text-muted-foreground { color: #666 !important; }
         }
       `}</style>
     </div>
