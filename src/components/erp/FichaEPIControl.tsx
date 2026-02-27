@@ -100,7 +100,7 @@ export function FichaEPIControl({ open, onOpenChange }: { open: boolean; onOpenC
                 <div className="print-only text-black bg-white font-serif text-[11pt] leading-tight">
 
                     {/* SINGLE UNIFIED PAGE */}
-                    <div className="print-page p-4 flex flex-col justify-between" style={{ height: '100%', maxHeight: '100vh', boxSizing: 'border-box' }}>
+                    <div className="print-page p-2 flex flex-col justify-between" style={{ height: '200mm', maxHeight: '200mm', boxSizing: 'border-box', overflow: 'hidden' }}>
                         <div>
                             <div className="text-center font-bold mb-2 uppercase border-b-2 border-black pb-1 text-[12pt]">
                                 FICHA DE CONTROLE E TERMO DE RESPONSABILIDADE DE EPI
@@ -149,31 +149,31 @@ export function FichaEPIControl({ open, onOpenChange }: { open: boolean; onOpenC
                                             </tr>
                                         )}
                                         {/* Reduced Empty rows to save space */}
-                                        {[...Array(Math.max(0, 5 - (assignments?.length || 0)))].map((_, i) => (
-                                            <tr key={`empty-${i}`}>
-                                                <td className="border border-black p-3">&nbsp;</td>
-                                                <td className="border border-black p-3">&nbsp;</td>
-                                                <td className="border border-black p-3">&nbsp;</td>
-                                                <td className="border border-black p-3">&nbsp;</td>
+                                        {[...Array(Math.max(0, 4 - (assignments?.length || 0)))].map((_, i) => (
+                                            <tr key={`empty-${i}`} style={{ height: '7mm' }}>
+                                                <td className="border border-black p-1">&nbsp;</td>
+                                                <td className="border border-black p-1">&nbsp;</td>
+                                                <td className="border border-black p-1">&nbsp;</td>
+                                                <td className="border border-black p-1">&nbsp;</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
 
-                                <div className="mt-2 text-[7.5pt] text-justify leading-snug">
-                                    <p className="mb-1">
-                                        Declaro para todos efeitos legais que recebi da empresa <strong>{settings?.company_name || "( NOME DA EMPRESA )"}</strong> os Equipamentos de Proteção Individual constantes na tabela acima, novos e em perfeitas condições de uso.
+                                <div className="mt-1 text-[7pt] text-justify leading-snug">
+                                    <p className="mb-0.5">
+                                        Declaro que recebi da empresa <strong>{settings?.company_name || "( NOME DA EMPRESA )"}</strong> os EPIs acima, novos e em perfeitas condições.
                                     </p>
                                     <p>
-                                        Estou ciente das disposições do Art. 462 e § 1º da CLT, e autorizo o desconto salarial proporcional ao custo de reparação do dano que os EPIs aos meus cuidados venham apresentar. Fico proibido de dar ou emprestar o EPI que estiver sob minha responsabilidade.
+                                        Autorizo o desconto salarial em caso de dano por mau uso. Fico proibido de emprestar o EPI sob minha responsabilidade.
                                     </p>
                                 </div>
                             </div>
 
                             {/* Right Side: Terms and Norms */}
-                            <div className="w-[45%] flex flex-col text-[7.5pt] leading-[1.15] space-y-1.5">
+                            <div className="w-[45%] flex flex-col text-[7pt] leading-tight space-y-1">
                                 <div>
-                                    <p className="font-bold text-[8pt] border-b border-black pb-0.5 mb-1 uppercase">Termo de Responsabilidade</p>
+                                    <p className="font-bold text-[7.5pt] border-b border-black pb-0.5 mb-0.5 uppercase">Termo de Responsabilidade</p>
                                 </div>
 
                                 <div>
@@ -199,18 +199,18 @@ export function FichaEPIControl({ open, onOpenChange }: { open: boolean; onOpenC
                         </div>
 
                         {/* Signatures */}
-                        <div className="mt-4 shrink-0">
-                            <div className="grid grid-cols-2 gap-8">
-                                <div className="text-center pt-6">
-                                    <div className="border-t border-black mb-1"></div>
-                                    <p className="text-[8pt]">Assinatura do Responsável (Entrega)</p>
+                        <div className="mt-2 shrink-0">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="text-center pt-4">
+                                    <div className="border-t border-black mb-0.5"></div>
+                                    <p className="text-[7.5pt]">Assinatura do Responsável (Entrega)</p>
                                 </div>
-                                <div className="text-center pt-6">
-                                    <div className="border-t border-black mb-1"></div>
-                                    <p className="text-[8pt] font-semibold">Assinatura do Colaborador: {selectedEmployee.name}</p>
+                                <div className="text-center pt-4">
+                                    <div className="border-t border-black mb-0.5"></div>
+                                    <p className="text-[7.5pt] font-semibold">Assinatura do Colaborador: {selectedEmployee.name}</p>
                                 </div>
                             </div>
-                            <div className="text-right text-[8pt] mt-2 text-gray-700">
+                            <div className="text-right text-[7.5pt] mt-1 text-gray-700">
                                 {settings?.company_address?.split(',')[0] || "Local"}, {now.getDate()} de {meses[now.getMonth()]} de {now.getFullYear()}
                             </div>
                         </div>
@@ -244,27 +244,23 @@ export function FichaEPIControl({ open, onOpenChange }: { open: boolean; onOpenC
           
           .print-only { 
             display: block !important;
-            position: fixed !important;
+            position: absolute !important;
             left: 0 !important;
             top: 0 !important;
-            width: 290mm !important;
+            width: 287mm !important;
+            height: 200mm !important;
             margin: 0;
             padding: 0;
             z-index: 999999 !important;
-          }
-          
-          .page-break { 
-            page-break-after: always;
-            height: 0;
-            display: block;
-            border: none;
+            overflow: hidden !important;
           }
           
           .print-page { 
             width: 100%;
+            height: 100%;
             box-sizing: border-box;
             background: white;
-            padding: 10mm;
+            padding: 5mm;
           }
           
           .no-print { display: none !important; }
