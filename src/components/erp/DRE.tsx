@@ -221,85 +221,82 @@ export function DRE() {
         @media print {
           @page { 
             size: A4 portrait; 
-            margin: 8mm; 
+            margin: 0; 
           }
           
-          html, body {
-            height: auto !important;
-            overflow: visible !important;
-            margin: 0 !important;
-            padding: 0 !important;
+          /* Hide EVERYTHING */
+          body > * { 
+            display: none !important; 
           }
 
-          .no-print, button, select, [role="dialog"], .SidePanel, .toast, header, aside { 
+          /* Force display only the printable content */
+          body > div[data-state], 
+          .lg\\:ml-64,
+          main,
+          .animate-fade-in {
+            display: block !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            transform: none !important;
+          }
+
+          /* Target the DRE container specifically */
+          .space-y-8 {
+            display: block !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            padding: 10mm !important;
+            box-sizing: border-box !important;
+            background: white !important;
+            overflow: hidden !important;
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            z-index: 99999;
+          }
+
+          .no-print, button, select, [role="dialog"], .SidePanel, .toast, header, aside, .lucide { 
             display: none !important; 
           }
           
-          .lg\\:ml-64 { margin-left: 0 !important; }
-          main { 
-            padding: 0 !important; 
-            margin: 0 !important;
-            display: block !important;
-          }
-          
-          .bg-card { 
-            border: none !important; 
+          .bg-card, .bg-sidebar { 
+            border: 1px solid #eee !important;
             background: transparent !important;
-            box-shadow: none !important; 
-            margin-bottom: 10px !important;
+            box-shadow: none !important;
+            margin-bottom: 8px !important;
+            padding: 10px !important;
           }
+
+          /* Extreme Table Compaction */
+          table { margin-top: 5px !important; }
+          th, td { padding: 4px 8px !important; border-bottom: 1px solid #eee !important; }
+          .py-6 { padding-top: 4px !important; padding-bottom: 4px !important; }
           
-          body { 
-            background: white !important; 
-            color: black !important;
-          }
+          /* Font resets */
+          .text-3xl { font-size: 16pt !important; margin: 0 !important; }
+          .text-xl { font-size: 11pt !important; }
+          .text-lg { font-size: 9pt !important; }
+          h2, h3, h4 { margin-bottom: 4px !important; }
           
-          .animate-fade-in { animation: none !important; }
-          
-          /* Compact Table */
-          table { 
+          /* Force grid items to stack tightly */
+          .grid { display: block !important; }
+          .lg\\:col-span-8, .lg\\:col-span-12, .lg\\:col-span-4 { 
             width: 100% !important; 
-            border-collapse: collapse !important; 
-            margin-top: 10px !important;
-          }
-          
-          th, td { 
-            border-bottom: 1px solid #ddd !important; 
-            padding: 8px 4px !important; /* Compact padding */
-          }
-          
-          tr { break-inside: avoid; }
-          
-          .text-lg { font-size: 11pt !important; }
-          .text-xl { font-size: 13pt !important; }
-          .text-3xl { font-size: 18pt !important; }
-          .py-6 { padding-top: 10px !important; padding-bottom: 10px !important; }
-          
-          /* Combine columns for print */
-          .lg\\:col-span-8, .lg\\:col-span-4 { 
-            width: 100% !important; 
-            float: none !important;
             margin: 0 !important;
             padding: 0 !important;
-          }
-          .grid { display: block !important; }
-          
-          .bg-sidebar { 
-            background: #f9f9f9 !important; 
-            border: 1px solid #ddd !important; 
-            color: black !important;
-            padding: 15px !important;
-            margin-top: 15px !important;
-            break-inside: avoid;
           }
           
           .text-primary { color: black !important; }
           .text-success { color: #15803d !important; }
           .text-danger { color: #b91c1c !important; }
-          .text-muted-foreground { color: #666 !important; }
           
-          /* Hide decorative icons in print to save space */
-          .lucide { display: none !important; }
+          /* Hide Analysis text if space is tight */
+          .bg-primary\\/5 { margin-top: 5px !important; padding: 10px !important; }
         }
       `}</style>
     </div>
