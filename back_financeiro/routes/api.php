@@ -55,4 +55,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/epis/assignments', [EpiController::class, 'assignments']);
     Route::post('/epis/assignments', [EpiController::class, 'storeAssignment']);
     Route::patch('/epis/assignments/{assignment}/return', [EpiController::class, 'returnAssignment']);
+    Route::delete('/epis/assignments/{assignment}', [EpiController::class, 'destroyAssignment']);
 });

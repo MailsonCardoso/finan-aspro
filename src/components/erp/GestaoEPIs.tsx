@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Loader2, RotateCcw, Search } from "lucide-react";
+import { Plus, Loader2, RotateCcw, Search, Trash2 } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 import { formatDate } from "@/lib/format";
 import { SidePanel } from "./SidePanel";
@@ -16,6 +16,8 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
   const [fichaModalOpen, setFichaModalOpen] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
   const [search, setSearch] = useState("");
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [assignmentToDelete, setAssignmentToDelete] = useState<number | null>(null);
 
   const isOpen = modalOpen || internalModal;
   const queryClient = useQueryClient();
@@ -57,6 +59,21 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
       toast.success("Baixa de EPI registrada!");
     },
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await api.delete(`/epis/assignments/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["epi-assignments"] });
+      toast.success("Registro de EPI removido!");
+    },
+  });
+
+  const handleDelete = (id: number) => {
+    setAssignmentToDelete(id);
+    setDeleteConfirmOpen(true);
+  };
 
   const handleOpenReturn = (assignment: any) => {
     setSelectedAssignment(assignment);
@@ -143,11 +160,20 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
                   />
                 </td>
                 <td className="p-3 text-right">
-                  {row.status !== 'returned' && (
-                    <button onClick={() => handleOpenReturn(row)} title="Dar Baixa (Devolver)" className="p-1.5 bg-secondary text-secondary-foreground rounded-md hover:bg-primary hover:text-primary-foreground transition-colors">
-                      <RotateCcw className="h-4 w-4" />
+                  <div className="flex items-center justify-end gap-2">
+                    {row.status !== 'returned' && (
+                      <button onClick={() => handleOpenReturn(row)} title="Dar Baixa (Devolver)" className="p-1.5 bg-secondary text-secondary-foreground rounded-md hover:bg-primary hover:text-primary-foreground transition-colors">
+                        <RotateCcw className="h-4 w-4" />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleDelete(row.id)}
+                      title="Excluir Registro"
+                      className="p-1.5 bg-secondary text-secondary-foreground rounded-md hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </button>
-                  )}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -263,6 +289,15 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
       </SidePanel>
 
       <FichaEPIControl open={fichaModalOpen} onOpenChange={setFichaModalOpen} />
+
+      <ConfirmModal
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        onConfirm={() => assignmentToDelete && deleteMutation.mutate(assignmentToDelete)}
+        title="Excluir Registro de EPI"
+        description="Tem certeza que deseja excluir permanentemente este vínculo de EPI? Esta ação não pode ser desfeita."
+        confirmText="Excluir"
+      />
     </div>
   );
 }

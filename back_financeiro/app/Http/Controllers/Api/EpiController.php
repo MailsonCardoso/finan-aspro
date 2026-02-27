@@ -71,4 +71,10 @@ class EpiController extends Controller
 
         return $assignment;
     }
+
+    public function destroyAssignment(EpiAssignment $assignment)
+    {
+        $assignment->delete();
+        return response()->noContent();
+    }
 }
