@@ -100,110 +100,117 @@ export function FichaEPIControl({ open, onOpenChange }: { open: boolean; onOpenC
                 <div className="print-only text-black bg-white font-serif text-[11pt] leading-tight">
 
                     {/* SINGLE UNIFIED PAGE */}
-                    <div className="print-page p-2 flex flex-col justify-between" style={{ height: '188mm', maxHeight: '188mm', boxSizing: 'border-box', overflow: 'hidden' }}>
+                    <div className="print-page p-4 flex flex-col justify-between" style={{ height: '100%', minHeight: '190mm', boxSizing: 'border-box' }}>
                         <div>
-                            <div className="text-center font-bold mb-1 uppercase border-b-2 border-black pb-1 text-[11pt]">
+                            <div className="text-center font-bold mb-4 uppercase border-b-2 border-black pb-2 text-[14pt] tracking-wide">
                                 FICHA DE CONTROLE E TERMO DE RESPONSABILIDADE DE EPI
                             </div>
 
-                            <div className="mb-2 grid grid-cols-2 gap-2">
-                                <div className="border border-black p-1 leading-tight">
-                                    <p className="text-[6pt] uppercase font-bold text-gray-600">Empresa / Empregador</p>
-                                    <p className="font-bold text-[8.5pt]">{settings?.company_name || "( NOME DA EMPRESA )"}</p>
-                                    <p className="text-[7pt]">CNPJ: {settings?.company_cnpj || "( CNPJ DA EMPRESA )"}</p>
+                            <div className="mb-4 grid grid-cols-2 gap-4">
+                                <div className="border border-black p-2 leading-tight">
+                                    <p className="text-[7pt] uppercase font-bold text-gray-600 mb-1">Empresa / Empregador</p>
+                                    <p className="font-bold text-[10pt]">{settings?.company_name || "( NOME DA EMPRESA )"}</p>
+                                    <p className="text-[8pt] mt-1">CNPJ: {settings?.company_cnpj || "( CNPJ DA EMPRESA )"}</p>
                                 </div>
-                                <div className="border border-black p-1 leading-tight">
-                                    <p className="text-[6pt] uppercase font-bold text-gray-600">Colaborador / Recebedor</p>
-                                    <p className="font-bold text-[8.5pt]">{selectedEmployee.name}</p>
-                                    <p className="text-[7pt]">Cargo: {selectedEmployee.role}</p>
+                                <div className="border border-black p-2 leading-tight">
+                                    <p className="text-[7pt] uppercase font-bold text-gray-600 mb-1">Colaborador / Recebedor</p>
+                                    <p className="font-bold text-[10pt]">{selectedEmployee.name}</p>
+                                    <p className="text-[8pt] mt-1">Cargo: {selectedEmployee.role}</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex gap-4 flex-1 overflow-hidden">
+                        <div className="flex gap-6 flex-1">
                             {/* Left Side: Table */}
-                            <div className="w-[55%] flex flex-col">
-                                <h4 className="font-bold mb-0 uppercase text-center border-x border-t border-black bg-gray-100 p-0.5 text-[7.5pt]">RELAÇÃO DE EQUIPAMENTOS ENTREGUES</h4>
-                                <table className="w-full border-collapse border border-black text-[6.5pt]">
+                            <div className="w-[58%] flex flex-col">
+                                <h4 className="font-bold mb-0 uppercase text-center border-x border-t border-black bg-gray-100 p-1 text-[9pt]">RELAÇÃO DE EQUIPAMENTOS ENTREGUES</h4>
+                                <table className="w-full border-collapse border border-black text-[8pt]">
                                     <thead>
                                         <tr className="bg-gray-50">
-                                            <th className="border border-black p-0.5 text-left">EPI</th>
-                                            <th className="border border-black p-0.5 text-center w-20">Nº CA</th>
-                                            <th className="border border-black p-0.5 text-center w-20">Data Entrega</th>
-                                            <th className="border border-black p-0.5 text-center w-10">Qtd</th>
+                                            <th className="border border-black p-1.5 text-left">EPI</th>
+                                            <th className="border border-black p-1.5 text-center w-24">Nº CA</th>
+                                            <th className="border border-black p-1.5 text-center w-28">Data Entrega</th>
+                                            <th className="border border-black p-1.5 text-center w-12">Qtd</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {assignments && assignments.length > 0 ? (
                                             assignments.map((a: any) => (
                                                 <tr key={a.id}>
-                                                    <td className="border border-black p-0.5 px-1">{a.epi?.name}</td>
-                                                    <td className="border border-black p-0.5 text-center font-mono text-[6pt] truncate max-w-[80px]">{a.epi?.description || "-"}</td>
-                                                    <td className="border border-black p-0.5 text-center">{formatDate(a.assignment_date)}</td>
-                                                    <td className="border border-black p-0.5 text-center">01</td>
+                                                    <td className="border border-black p-1.5 px-2">{a.epi?.name}</td>
+                                                    <td className="border border-black p-1.5 text-center font-mono text-[7.5pt]">{a.epi?.description || "-"}</td>
+                                                    <td className="border border-black p-1.5 text-center">{formatDate(a.assignment_date)}</td>
+                                                    <td className="border border-black p-1.5 text-center">01</td>
                                                 </tr>
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan={4} className="border border-black p-1 text-center italic text-gray-400">Nenhum EPI registrado no mês vigente.</td>
+                                                <td colSpan={4} className="border border-black p-4 text-center italic text-gray-400">Nenhum EPI registrado no mês vigente.</td>
                                             </tr>
                                         )}
-                                        {/* Reduced Empty rows even further */}
-                                        {[...Array(Math.max(0, 3 - (assignments?.length || 0)))].map((_, i) => (
-                                            <tr key={`empty-${i}`} style={{ height: '6mm' }}>
-                                                <td className="border border-black p-0.5">&nbsp;</td>
-                                                <td className="border border-black p-0.5">&nbsp;</td>
-                                                <td className="border border-black p-0.5">&nbsp;</td>
-                                                <td className="border border-black p-0.5">&nbsp;</td>
+                                        {/* Dynamic empty rows to fill space */}
+                                        {[...Array(Math.max(1, 10 - (assignments?.length || 0)))].map((_, i) => (
+                                            <tr key={`empty-${i}`} style={{ height: '9mm' }}>
+                                                <td className="border border-black">&nbsp;</td>
+                                                <td className="border border-black">&nbsp;</td>
+                                                <td className="border border-black">&nbsp;</td>
+                                                <td className="border border-black">&nbsp;</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
 
-                                <div className="mt-1 text-[6.5pt] text-justify leading-snug">
-                                    <p className="mb-0.5">
-                                        Declaro que recebi da empresa <strong>{settings?.company_name || "( NOME DA EMPRESA )"}</strong> os EPIs acima, novos e em perfeitas condições.
+                                <div className="mt-3 text-[8.5pt] text-justify leading-relaxed">
+                                    <p className="mb-2">
+                                        Declaro para todos efeitos legais que recebi da empresa <strong>{settings?.company_name || "( NOME DA EMPRESA )"}</strong> os Equipamentos de Proteção Individual (EPIs) constantes na tabela acima, novos e em perfeitas condições de uso.
                                     </p>
                                     <p>
-                                        Autorizo o desconto salarial em caso de dano por mau uso. Fico proibido de emprestar o EPI sob minha responsabilidade.
+                                        Estou ciente das disposições legais e autorizo o desconto salarial proporcional ao custo de reparação do dano que os EPIs aos meus cuidados venham apresentar. Fico proibido de dar ou emprestar o EPI sob minha responsabilidade.
                                     </p>
                                 </div>
                             </div>
 
                             {/* Right Side: Terms and Norms */}
-                            <div className="w-[45%] flex flex-col text-[6.5pt] leading-tight space-y-1">
+                            <div className="w-[42%] flex flex-col text-[8pt] leading-snug space-y-3">
                                 <div>
-                                    <p className="font-bold text-[7pt] border-b border-black pb-0.5 mb-1 uppercase">Termo de Responsabilidade</p>
+                                    <p className="font-bold text-[9pt] border-b-2 border-black pb-1 mb-2 uppercase">Termo de Responsabilidade</p>
                                 </div>
 
                                 <div>
-                                    <p className="font-bold">NR 06</p>
-                                    <p className="font-medium">6.7. Cabe ao empregado:</p>
-                                    <p>a) usar para a finalidade a que se destina; b) responsabilizar-se pela guarda; c) comunicar alteração de uso; d) cumprir determinações.</p>
+                                    <p className="font-bold text-[8.5pt] mb-1">NR 06 - EQUIPAMENTOS DE PROTEÇÃO INDIVIDUAL</p>
+                                    <p className="font-semibold mb-0.5">6.7. Cabe ao empregado:</p>
+                                    <p className="ml-2">a) usar, utilizando-o apenas para a finalidade a que se destina;</p>
+                                    <p className="ml-2">b) responsabilizar-se pela guarda e conservação;</p>
+                                    <p className="ml-2">c) comunicar ao empregador qualquer alteração que o torne impróprio para uso;</p>
+                                    <p className="ml-2">d) cumprir as determinações do empregador sobre o uso adequado.</p>
                                 </div>
 
                                 <div>
-                                    <p className="font-bold">NR 01</p>
-                                    <p className="font-medium">1.8. Cabe ao empregado:</p>
-                                    <p>a) cumprir disposições legais; b) usar o EPI; c) submeter-se a exames; d) colaborar com a empresa.</p>
-                                    <p className="font-medium mt-0.5 italic">1.8.1. Constitui ato faltoso a recusa injustificada.</p>
+                                    <p className="font-bold text-[8.5pt] mb-1">NR 01 - DISPOSIÇÕES GERAIS</p>
+                                    <p className="font-semibold mb-0.5">1.8. Cabe ao empregado:</p>
+                                    <p className="ml-2">a) cumprir as disposições legais e regulamentares sobre segurança e medicina do trabalho;</p>
+                                    <p className="ml-2">b) usar o EPI fornecido pelo empregador;</p>
+                                    <p className="ml-2">c) submeter-se aos exames médicos previstos;</p>
+                                    <p className="ml-2">d) colaborar com a empresa na aplicação das Normas Regulamentadoras.</p>
+                                    <p className="font-bold mt-2 italic text-[7.5pt]">1.8.1. Constitui ato faltoso a recusa injustificada ao cumprimento do disposto no item anterior.</p>
                                 </div>
                             </div>
                         </div>
 
                         {/* Signatures */}
-                        <div className="mt-1 shrink-0">
-                            <div className="grid grid-cols-2 gap-10">
-                                <div className="text-center pt-2">
-                                    <div className="border-t border-black mb-0.5"></div>
-                                    <p className="text-[7pt]">Resp. Entrega</p>
+                        <div className="mt-8 shrink-0">
+                            <div className="grid grid-cols-2 gap-16">
+                                <div className="text-center">
+                                    <div className="border-t border-black mb-1"></div>
+                                    <p className="text-[9pt] font-medium text-gray-700">Responsável pela Entrega</p>
                                 </div>
-                                <div className="text-center pt-2">
-                                    <div className="border-t border-black mb-0.5"></div>
-                                    <p className="text-[7pt] font-semibold">{selectedEmployee.name}</p>
+                                <div className="text-center">
+                                    <div className="border-t border-black mb-1"></div>
+                                    <p className="text-[9pt] font-bold uppercase">{selectedEmployee.name}</p>
+                                    <p className="text-[7.5pt] text-gray-600">Assinatura do Colaborador</p>
                                 </div>
                             </div>
-                            <div className="text-right text-[6.5pt] mt-1 text-gray-500 italic">
+                            <div className="text-right text-[8.5pt] mt-6 text-gray-800 font-medium italic">
                                 {settings?.company_address?.split(',')[0] || "Local"}, {now.getDate()} de {meses[now.getMonth()]} de {now.getFullYear()}
                             </div>
                         </div>
@@ -213,56 +220,43 @@ export function FichaEPIControl({ open, onOpenChange }: { open: boolean; onOpenC
         @media print {
           @page {
             size: A4 landscape;
-            margin: 0;
+            margin: 10mm;
           }
           
           body, html { 
             margin: 0 !important; 
             padding: 0 !important; 
-            overflow: hidden !important;
-            height: 100% !important;
-            width: 100% !important;
             background: white !important; 
           }
           
-          /* Esconder TUDO no body exceto a área de impressão */
           body > * { 
             display: none !important; 
           }
 
-          /* Tentar reexibir o SidePanel mas limpando toda a sua estrutura de posicionamento lateral */
           body > div[data-state] {
             display: block !important;
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
             width: 100% !important;
-            height: 100% !important;
             transform: none !important;
-            padding: 0 !important;
-            margin: 0 !important;
           }
 
-          /* Limpar todos os possíveis containers ancestrais do printable */
           div, section, main {
             position: static !important;
             transform: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            width: auto !important;
             box-shadow: none !important;
+            margin: 0 !important;
           }
           
           .print-only { 
             display: block !important;
             position: fixed !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 297mm !important; /* Largura total do A4 Paisagem */
-            height: 210mm !important; /* Altura total do A4 Paisagem */
-            margin: 0;
-            padding: 0;
-            z-index: 99999999 !important;
+            left: 0;
+            top: 0;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 999999 !important;
             background: white !important;
             visibility: visible !important;
           }
@@ -278,8 +272,7 @@ export function FichaEPIControl({ open, onOpenChange }: { open: boolean; onOpenC
             flex-direction: column !important;
             justify-content: space-between !important;
             box-sizing: border-box;
-            background: white;
-            padding: 8mm 12mm !important; /* Margem interna para o conteúdo não colar na borda física */
+            padding: 0 !important;
           }
           
           .no-print { display: none !important; }
