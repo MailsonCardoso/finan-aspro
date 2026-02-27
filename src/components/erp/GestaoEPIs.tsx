@@ -215,15 +215,32 @@ export function GestaoEPIs({ modalOpen, onCloseModal, preselectedEmployee }: { m
         <form onSubmit={(e) => {
           e.preventDefault();
           const formData = new FormData(e.currentTarget);
+          const returnDateStr = formData.get('return_date') as string;
+          const returnDate = new Date(returnDateStr + 'T00:00:00');
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+
+          if (returnDate > today) {
+            toast.error("A data de baixa não pode ser maior que o dia atual.");
+            return;
+          }
+
           const payload = {
-            return_date: formData.get('return_date'),
+            return_date: returnDateStr,
             return_reason: formData.get('return_reason'),
           };
           returnMutation.mutate({ id: selectedAssignment.id, payload });
         }} className="space-y-4 pb-10">
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Data de Devolução / Baixa</label>
-            <input name="return_date" type="date" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+            <input
+              name="return_date"
+              type="date"
+              required
+              defaultValue={new Date().toISOString().split('T')[0]}
+              max={new Date().toISOString().split('T')[0]}
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">Motivo da Baixa</label>
