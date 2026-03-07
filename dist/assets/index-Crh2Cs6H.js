@@ -650,28 +650,48 @@ For more information, see https://radix-ui.com/primitives/docs/components/alert-
             margin: 10mm;
           }
           
-          /* Optimized hiding/showing for Portals */
-          html, body {
-            visibility: hidden !important;
-            height: auto !important;
-            overflow: visible !important;
-            background: white !important;
+          body, html { 
+            margin: 0 !important; 
+            padding: 0 !important; 
+            background: white !important; 
+          }
+          
+          body > * { 
+            display: none !important; 
           }
 
-          .print-only, .print-only * {
-            visibility: visible !important;
-          }
-
-          .print-only {
+          body > div[data-state] {
+            display: block !important;
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
             width: 100% !important;
-            display: block !important;
-            z-index: 9999999 !important;
+            transform: none !important;
+          }
+
+          div, section, main {
+            position: static !important;
+            transform: none !important;
+            box-shadow: none !important;
+            margin: 0 !important;
           }
           
-          /* Force page styles for typography */
+          .print-only { 
+            display: block !important;
+            position: fixed !important;
+            left: 0;
+            top: 0;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 999999 !important;
+            background: white !important;
+            visibility: visible !important;
+          }
+
+          .print-only * {
+            visibility: visible !important;
+          }
+          
           .print-page { 
             width: 100%;
             height: 100%;
@@ -679,10 +699,10 @@ For more information, see https://radix-ui.com/primitives/docs/components/alert-
             flex-direction: column !important;
             justify-content: space-between !important;
             box-sizing: border-box;
+            padding: 0 !important;
           }
           
           .no-print { display: none !important; }
-          #radix-\\:r1\\: { display: none !important; } /* Hide the sheet backdrop if needed */
         }
         
         @media screen {
