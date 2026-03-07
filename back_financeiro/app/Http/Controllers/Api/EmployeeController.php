@@ -18,7 +18,7 @@ class EmployeeController extends Controller
         $data = $request->validate([
             'name' => 'required|string',
             'role' => 'required|string',
-            'department' => 'required|string',
+            'department' => 'nullable|string',
             'admission_date' => 'required|date',
             'salary' => 'nullable|numeric',
         ]);
@@ -36,7 +36,7 @@ class EmployeeController extends Controller
         $data = $request->validate([
             'name' => 'string',
             'role' => 'string',
-            'department' => 'string',
+            'department' => 'nullable|string',
             'admission_date' => 'date',
             'salary' => 'nullable|numeric',
             'status' => 'string',

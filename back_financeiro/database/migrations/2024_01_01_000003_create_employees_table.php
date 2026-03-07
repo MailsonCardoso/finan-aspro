@@ -12,7 +12,7 @@ return new class extends Migration {
                 $col->id();
                 $col->string('name');
                 $col->string('role');
-                $col->string('department');
+                $col->string('department')->nullable();
                 $col->date('admission_date');
                 $col->decimal('salary', 15, 2)->nullable();
                 $col->enum('status', ['active', 'inactive'])->default('active');
