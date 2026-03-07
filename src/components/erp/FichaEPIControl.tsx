@@ -8,6 +8,7 @@ import { SidePanel } from "./SidePanel";
 export function FichaEPIControl({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
     const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>("");
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isPreparing, setIsPreparing] = useState(false);
 
     const { data: employees } = useQuery({
         queryKey: ["employees"],
@@ -49,7 +50,11 @@ export function FichaEPIControl({ open, onOpenChange }: { open: boolean; onOpenC
     });
 
     const handlePrint = () => {
-        window.print();
+        setIsPreparing(true);
+        setTimeout(() => {
+            window.print();
+            setIsPreparing(false);
+        }, 500);
     };
 
     const selectedEmployee = employees?.find((e: any) => e.id.toString() === selectedEmployeeId);
@@ -80,9 +85,20 @@ export function FichaEPIControl({ open, onOpenChange }: { open: boolean; onOpenC
                     <div className="flex justify-end">
                         <button
                             onClick={handlePrint}
-                            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-colors text-sm font-bold shadow-md"
+                            disabled={isPreparing}
+                            className={`flex items-center gap-2 px-4 py-2 ${isPreparing ? 'bg-muted text-muted-foreground' : 'bg-primary text-primary-foreground hover:bg-primary-hover'} rounded-lg transition-colors text-sm font-bold shadow-md`}
                         >
-                            <Printer className="h-4 w-4" /> Imprimir Ficha
+                            {isPreparing ? (
+                                <>
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    Preparando...
+                                </>
+                            ) : (
+                                <>
+                                    <Printer className="h-4 w-4" />
+                                    Imprimir Ficha
+                                </>
+                            )}
                         </button>
                     </div>
                 )}
@@ -223,48 +239,28 @@ export function FichaEPIControl({ open, onOpenChange }: { open: boolean; onOpenC
             margin: 10mm;
           }
           
-          body, html { 
-            margin: 0 !important; 
-            padding: 0 !important; 
-            background: white !important; 
-          }
-          
-          body > * { 
-            display: none !important; 
+          /* Optimized hiding/showing for Portals */
+          html, body {
+            visibility: hidden !important;
+            height: auto !important;
+            overflow: visible !important;
+            background: white !important;
           }
 
-          body > div[data-state] {
-            display: block !important;
+          .print-only, .print-only * {
+            visibility: visible !important;
+          }
+
+          .print-only {
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
             width: 100% !important;
-            transform: none !important;
-          }
-
-          div, section, main {
-            position: static !important;
-            transform: none !important;
-            box-shadow: none !important;
-            margin: 0 !important;
-          }
-          
-          .print-only { 
             display: block !important;
-            position: fixed !important;
-            left: 0;
-            top: 0;
-            width: 100% !important;
-            height: 100% !important;
-            z-index: 999999 !important;
-            background: white !important;
-            visibility: visible !important;
-          }
-
-          .print-only * {
-            visibility: visible !important;
+            z-index: 9999999 !important;
           }
           
+          /* Force page styles for typography */
           .print-page { 
             width: 100%;
             height: 100%;
@@ -272,10 +268,10 @@ export function FichaEPIControl({ open, onOpenChange }: { open: boolean; onOpenC
             flex-direction: column !important;
             justify-content: space-between !important;
             box-sizing: border-box;
-            padding: 0 !important;
           }
           
           .no-print { display: none !important; }
+          #radix-\\:r1\\: { display: none !important; } /* Hide the sheet backdrop if needed */
         }
         
         @media screen {
